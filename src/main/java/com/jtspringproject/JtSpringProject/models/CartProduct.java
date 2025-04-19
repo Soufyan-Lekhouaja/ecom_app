@@ -3,9 +3,11 @@ package com.jtspringproject.JtSpringProject.models;
 import javax.persistence.*;
 import java.util.ArrayList;
 import java.util.List;
+import javax.persistence.Table;
 
 
-@Entity(name="CART_PRODUCT")
+@Entity
+@Table(name="CART_PRODUCT")
 public class CartProduct {
 
     @Id
