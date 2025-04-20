@@ -1,7 +1,7 @@
 pipeline {
     agent any
     environment {
-        MAVEN_HOME = 'C:\Program Files\Apache\maven-3.9.9'
+        MAVEN_HOME = 'C:\\Program Files\\Apache\\maven-3.9.9'
         DOCKER_IMAGE = 'ecomapp:latest'
     }
     tools {
