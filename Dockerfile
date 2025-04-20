@@ -3,7 +3,7 @@ FROM openjdk:17-jdk-slim
 WORKDIR /app
 # Copier le contenu du répertoire courant dans le conteneur
 COPY . /app
-RUN ./mvnw clean install
+RUN mvn clean install
 # Exposer le port 8083 pour l'application
 EXPOSE 8083
 CMD ["java", "-jar", "target/ecomapp.jar", "--server.port=8083"]
