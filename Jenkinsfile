@@ -16,34 +16,34 @@ pipeline {
         }
         stage('Build') {
             steps {
-                sh 'mvn clean install'
+                bat 'mvn clean install'
             }
         }
         stage('Test') {
             steps {
-                sh 'mvn test'
+                bat 'mvn test'
             }
         }
         stage('Package') {
             steps {
-                sh 'mvn package'
+                bat 'mvn package'
             }
         }
-        stage('Publish to Nexus') {
+        stage('Publibat to Nexus') {
             steps {
-                sh 'mvn deploy'
+                bat 'mvn deploy'
             }
         }
         stage('Build Docker Image') {
             steps {
                 script {
-                    sh 'docker build -t ecomapp:latest .'
+                    bat 'docker build -t ecomapp:latest .'
                 }
             }
         }
         stage('Run Docker Container') {
             steps {
-                sh 'docker run -d -p 8080:8080 --name ecomapp ecomapp:latest'
+                bat 'docker run -d -p 8080:8080 --name ecomapp ecomapp:latest'
             }
         }
     }
