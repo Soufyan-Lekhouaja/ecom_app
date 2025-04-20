@@ -47,11 +47,5 @@ pipeline {
             }
         }
     }
-    post {
-        failure {
-            mail to: 'soufyan.lekhouaja@gmail.com',
-                 subject: "ECHEC dans le pipeline Jenkins : ${env.JOB_NAME}",
-                 body: "Le job ${env.JOB_NAME} a échoué à l'étape ${env.STAGE_NAME}.\nConsultez Jenkins pour plus de détails."
-        }
-    }
+    
 }
