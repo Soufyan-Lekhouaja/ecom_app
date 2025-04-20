@@ -1,4 +1,4 @@
-FROM openjdk:17.0.12-jdk-slim
+FROM openjdk:17-jdk-slim
 # Définir le répertoire de travail dans le conteneur
 WORKDIR /app
 # Copier le contenu du répertoire courant dans le conteneur
