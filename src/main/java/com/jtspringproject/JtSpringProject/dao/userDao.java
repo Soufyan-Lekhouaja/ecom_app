@@ -23,23 +23,18 @@ public class userDao {
 	public void setSessionFactory(SessionFactory sf) {
         this.sessionFactory = sf;
     }
-   @Transactional
-    public List<User> getAllUser() {
+@Transactional
+public List<User> getAllUser() {
         Session session = this.sessionFactory.getCurrentSession();
 		List<User>  userList = session.createQuery("from User").list();
         return userList;
     }
-    
-    @Transactional
-	public User saveUser(User user) {
+@Transactional
+public User saveUser(User user) {
 		this.sessionFactory.getCurrentSession().saveOrUpdate(user);
 		System.out.println("User added" + user.getId());
         return user;
 	}
-    
-//    public User checkLogin() {
-//    	this.sessionFactory.getCurrentSession().
-//    }
 @Transactional
 public User getUser(String username, String password) {
 	Query query = sessionFactory.getCurrentSession().createQuery("from User where username = :username");
@@ -57,17 +52,14 @@ public User getUser(String username, String password) {
 		return null;
 	}
 }
-
-
-	@Transactional
-	public boolean userExists(String username) {
+@Transactional
+public boolean userExists(String username) {
 		Query query = sessionFactory.getCurrentSession().createQuery("from User where username = :username");
 		query.setParameter("username",username);
 		return !query.getResultList().isEmpty();
 	}
-
-	@Transactional
-	public User getUserByUsername(String username) {
+@Transactional
+public User getUserByUsername(String username) {
 	        Query<User> query = sessionFactory.getCurrentSession().createQuery("from User where username = :username", User.class);
 	        query.setParameter("username", username);
 	        
