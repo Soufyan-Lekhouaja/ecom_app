@@ -38,7 +38,7 @@ pipeline {
             steps {
                 script {
                     // Attendre que MySQL soit prêt (tu peux ajuster à 20-30s si nécessaire)
-                    bat 'timeout /T 120 /NOBREAK'
+                    bat 'timeout /T 240 /NOBREAK'
 
                     // Copier le fichier SQL dans le conteneur
                     bat 'docker cp scriptdb.sql mysql8:/scriptdb.sql'
