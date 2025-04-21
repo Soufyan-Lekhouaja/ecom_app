@@ -40,14 +40,35 @@ pipeline {
                     bat 'docker stop ecomapp || true'
                     bat 'docker rm ecomapp || true'
                     bat 'docker build -t ecomapp:latest .'
+                }
+            }
         }
-    }
-    }
+        stage('Setup Network and MySQL') {
+            steps {
+                script {
+                    // Créer le réseau Docker s’il n’existe pas
+                    bat 'docker network inspect ecom-network || docker network create ecom-network'
+
+                    // Stop + remove MySQL s’il existe déjà
+                    bat 'docker stop mysql8 || true'
+                    bat 'docker rm mysql8 || true'
+
+                    // Lancer le conteneur MySQL
+                    bat '''
+                    docker run -d --name mysql8 --network ecom-network ^
+                    -e MYSQL_ROOT_PASSWORD=1212 ^
+                    -e MYSQL_DATABASE=ecomjava ^
+                    -p 3306:3306 mysql:8.0
+                    '''
+                }
+            }
+        }
         stage('Run Docker Container') {
             steps {
-                bat 'docker run -d -p 8083:8083 --name ecomapp ecomapp:latest'
+                script {
+                    bat 'docker run -d -p 8083:8083 --name ecomapp --network ecom-network ecomapp:latest'
+                }
             }
         }
     }
-    
 }
