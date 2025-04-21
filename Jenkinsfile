@@ -63,6 +63,20 @@ pipeline {
                 }
             }
         }
+        stage('Init Database') {
+            steps {
+                script {
+                    // Attendre que MySQL soit prêt (tu peux ajuster à 20-30s si nécessaire)
+                    bat 'timeout /T 15 /NOBREAK'
+
+                    // Copier le fichier SQL dans le conteneur
+                    bat 'docker cp scriptdb.sql mysql8:/scriptdb.sql'
+
+                    // Exécuter le script dans la base ecomjava
+                    bat 'docker exec -i mysql8 mysql -uroot -p1212 ecomjava < /scriptdb.sql'
+                }
+            }
+        }
         stage('Run Docker Container') {
             steps {
                 script {
