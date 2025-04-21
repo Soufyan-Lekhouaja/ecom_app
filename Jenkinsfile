@@ -38,7 +38,7 @@ pipeline {
             steps {
                 script {
                     bat 'docker stop ecomapp'
-                    bat 'dockre rm ecomapp'
+                    bat 'docker rm ecomapp'
                     bat 'docker build -t ecomapp:latest .'
                 }
             }
