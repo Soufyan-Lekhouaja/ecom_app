@@ -29,7 +29,7 @@ pipeline {
                 bat 'mvn package'
             }
         }
-        stage('Publibat to Nexus') {
+        stage('Publish to Nexus') {
             steps {
                 bat 'mvn deploy'
             }
@@ -37,6 +37,8 @@ pipeline {
         stage('Build Docker Image') {
             steps {
                 script {
+                    bat 'docker stop ecomapp'
+                    bat 'dockre rm ecomapp'
                     bat 'docker build -t ecomapp:latest .'
                 }
             }
