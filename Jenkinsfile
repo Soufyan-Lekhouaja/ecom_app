@@ -14,35 +14,6 @@ pipeline {
                 git 'https://github.com/Soufyan-Lekhouaja/ecom_app'
             }
         }
-        stage('Build') {
-            steps {
-                bat 'mvn clean install'
-            }
-        }
-        stage('Test') {
-            steps {
-                bat 'mvn test'
-            }
-        }
-        stage('Package') {
-            steps {
-                bat 'mvn package'
-            }
-        }
-        stage('Publish to Nexus') {
-            steps {
-                bat 'mvn deploy'
-            }
-        }
-        stage('Build Docker Image') {
-            steps {
-                script {
-                    bat 'docker stop ecomapp || true'
-                    bat 'docker rm ecomapp || true'
-                    bat 'docker build -t ecomapp:latest .'
-                }
-            }
-        }
         stage('Setup Network and MySQL') {
             steps {
                 script {
@@ -77,6 +48,36 @@ pipeline {
                 }
             }
         }
+        stage('Build') {
+            steps {
+                bat 'mvn clean install'
+            }
+        }
+        stage('Test') {
+            steps {
+                bat 'mvn test'
+            }
+        }
+        stage('Package') {
+            steps {
+                bat 'mvn package'
+            }
+        }
+        stage('Publish to Nexus') {
+            steps {
+                bat 'mvn deploy'
+            }
+        }
+        stage('Build Docker Image') {
+            steps {
+                script {
+                    bat 'docker stop ecomapp || true'
+                    bat 'docker rm ecomapp || true'
+                    bat 'docker build -t ecomapp:latest .'
+                }
+            }
+        }
+        
         stage('Run Docker Container') {
             steps {
                 script {
