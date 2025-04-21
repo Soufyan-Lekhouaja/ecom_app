@@ -37,15 +37,15 @@ pipeline {
         stage('Build Docker Image') {
             steps {
                 script {
-                    bat 'docker stop ecomapp'
-                    bat 'docker rm ecomapp'
+                    bat 'docker stop ecomapp || true'
+                    bat 'docker rm ecomapp || true'
                     bat 'docker build -t ecomapp:latest .'
-                }
-            }
         }
+    }
+    }
         stage('Run Docker Container') {
             steps {
-                bat 'docker run -d -p 8080:8083 --name ecomapp ecomapp:latest'
+                bat 'docker run -d -p 8083:8083 --name ecomapp ecomapp:latest'
             }
         }
     }
