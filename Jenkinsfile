@@ -21,8 +21,8 @@ pipeline {
                     bat 'docker network inspect ecom-network || docker network create ecom-network'
 
                     // Stop + remove MySQL s’il existe déjà
-                    bat 'docker stop mysql8 || true'
-                    bat 'docker rm mysql8 || true'
+                    bat 'docker stop mysql8 || exit 0'
+                    bat 'docker rm mysql8 || exit 0'
 
                     // Lancer le conteneur MySQL
                     bat '''
