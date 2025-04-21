@@ -1,9 +1,5 @@
 FROM openjdk:17-jdk-slim
 
-# Installer Maven et autres dépendances nécessaires
-RUN apt-get update && \
-    apt-get install -y maven && \
-    apt-get clean
 
 # Définir le répertoire de travail
 WORKDIR /app
@@ -12,7 +8,7 @@ WORKDIR /app
 COPY . /app
 
 # Construire l'application avec Maven
-RUN mvn clean install
+#RUN mvn clean install
 
 # Exposer le port sur lequel l'application va tourner
 EXPOSE 8083
