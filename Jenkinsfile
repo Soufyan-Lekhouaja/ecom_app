@@ -35,18 +35,28 @@ pipeline {
             }
         }
         stage('Init Database') {
-            steps {
-                script {
-                    // Attendre que MySQL soit prêt (tu peux ajuster à 20-30s si nécessaire)
-                    sleep time: 60, unit: 'SECONDS'
-                    // Copier le fichier SQL dans le conteneur
-                    bat 'docker cp scriptdb.sql mysql8:/scriptdb.sql'
-
-                    // Exécuter le script dans la base ecomjava
-                    bat 'docker exec -i mysql8 mysql -uroot -p1212 ecomjava < /scriptdb.sql'
-                }
-            }
+    steps {
+        script {
+            // Verify file exists
+            bat 'dir scriptdb.sql'
+            
+            // Wait for MySQL to be ready
+            bat '''
+            :loop
+            docker exec mysql8 mysqladmin -uroot -p1212 ping | findstr "mysqld is alive" && goto :done
+            timeout /t 5
+            goto :loop
+            :done
+            '''
+            
+            // Copy the file
+            bat 'docker cp scriptdb.sql mysql8:/scriptdb.sql'
+            
+            // Execute the script and capture output for debugging
+            bat 'docker exec -i mysql8 mysql -uroot -p1212 ecomjava < /scriptdb.sql 2>&1'
         }
+    }
+}
         stage('Build') {
             steps {
                 bat 'mvn clean install'
