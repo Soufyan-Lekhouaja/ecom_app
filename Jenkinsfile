@@ -51,9 +51,7 @@ pipeline {
             
             // Copy the file
             bat 'docker cp scriptdb.sql mysql8:/scriptdb.sql'
-            
-            // Execute the script and capture output for debugging
-            bat 'docker exec -i mysql8 mysql -uroot -p1212 ecomjava < /scriptdb.sql 2>&1'
+            bat 'docker exec -i mysql8 mysql -uroot -p1212 ecomjava < /scriptdb.sql'
         }
     }
 }
