@@ -10,7 +10,7 @@ pipeline {
     stages {
         stage('Checkout') {
             steps {
-                git url: 'https://github.com/Soufyan-Lekhouaja/ecom_app', branch: 'main'
+                git url: 'https://github.com/Soufyan-Lekhouaja/ecom_app', branch: 'master'
             }
         }
         stage('Build Application') {
