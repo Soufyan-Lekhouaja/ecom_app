@@ -21,6 +21,12 @@ goto loop
                 }
             }
         }
+stage('Build & Package') {
+    steps {
+        bat 'mvn clean package'
+    }
+}
+
         stage('Build Docker Image') {
             steps {
                 bat 'docker build -t ecomapp:latest .'
