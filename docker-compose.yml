@@ -1,0 +1,30 @@
+version: '3.8'
+services:
+  mysql8:
+    image: mysql:8
+    environment:
+      MYSQL_ROOT_PASSWORD: 1212
+      MYSQL_DATABASE: ecomjava
+    networks:
+      - ecom-network
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+  ecomapp:
+    image: ecomapp:latest
+    depends_on:
+      mysql8:
+        condition: service_healthy
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:mysql://mysql8:3306/ecomjava
+      SPRING_DATASOURCE_USERNAME: root
+      SPRING_DATASOURCE_PASSWORD: 1212
+    networks:
+      - ecom-network
+    ports:
+      - "8083:8083"
+networks:
+  ecom-network:
+    driver: bridge
