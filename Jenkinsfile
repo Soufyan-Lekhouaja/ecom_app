@@ -25,7 +25,7 @@ pipeline {
         }
         stage('Start Application Service') {
             steps {
-                // Launch only the ecomapp service (will wait for mysql8 via depends_on)
+                // Launch only the ecomapp service (will wait for postgres via depends_on)
                 bat "docker-compose -f ${env.DOCKER_COMPOSE_FILE} up -d --no-deps ecomapp"
             }
         }
