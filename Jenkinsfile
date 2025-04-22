@@ -29,7 +29,7 @@ pipeline {
                 bat 'mvn package'
             }
         }
-        stage('Publibat to Nexus') {
+        stage('Publish to Nexus') {
             steps {
                 bat 'mvn deploy'
             }
@@ -49,7 +49,17 @@ pipeline {
         }
         stage('Run Docker Container') {
             steps {
-                bat 'docker run -d -p 8083:8083 --name ecomapp ecomapp:latest'
+                script {
+                    // Connect to the same Docker network and pass MySQL credentials as env variables
+                    bat '''
+                    docker run -d --name ecomapp ^
+                    --network ecom-network ^
+                    -e SPRING_DATASOURCE_URL=jdbc:mysql://mysql8:3306/ecomjava ^
+                    -e SPRING_DATASOURCE_USERNAME=root ^
+                    -e SPRING_DATASOURCE_PASSWORD=1212 ^
+                    -p 8083:8083 ecomapp:latest
+                    '''
+                }
             }
         }
     }
