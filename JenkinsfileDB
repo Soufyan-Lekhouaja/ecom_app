@@ -25,7 +25,7 @@ pipeline {
 -e MYSQL_DATABASE=ecomjava ^
 -p 3306:3306 ^
 -v mysql_data:/var/lib/mysql ^
--v "C:\Users\pc\.jenkins\workspace\database pipeline\scriptdb.sql":/docker-entrypoint-initdb.d/scriptdb.sql ^
+-v "C:/Users/pc/.jenkins/workspace/database pipeline/scriptdb.sql":/docker-entrypoint-initdb.d/scriptdb.sql ^
 mysql:8.0
                     '''
                 }
