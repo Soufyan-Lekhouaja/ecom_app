@@ -13,26 +13,22 @@ pipeline {
         stage('Setup Network and MySQL') {
             steps {
                 script {
-                    // Create Docker network if it doesn't exist
+                    // Créer le réseau Docker s'il n'existe pas
                     bat 'docker network inspect ecom-network || docker network create ecom-network'
-                    
-                    // Check if container exists, stop and remove if it does
-                    bat '''
-                    docker stop mysql8 || echo "Container not running"
-                    docker rm mysql8 || echo "Container doesn't exist"
-                    '''
-                    
-                    // Launch MySQL container with data volume
+                    // Stop + remove MySQL s'il existe déjà
+                    bat 'docker stop mysql8 || exit 0'
+                    bat 'docker rm mysql8 || exit 0'
+                    // Lancer le conteneur MySQL
                     bat '''
                     docker run -d --name mysql8 --network ecom-network ^
                     -e MYSQL_ROOT_PASSWORD=1212 ^
                     -e MYSQL_DATABASE=ecomjava ^
                     -p 3306:3306 ^
-                    -v mysql_data:/var/lib/mysql ^
-                    -v "%WORKSPACE%\\scriptdb.sql":/docker-entrypoint-initdb.d/scriptdb.sql ^
+                    -v %CD%/scriptdb.sql:/docker-entrypoint-initdb.d/scriptdb.sql ^
                     mysql:8.0
                     '''
                 }
+            }
             }
         }
         stage('Init Database') {
