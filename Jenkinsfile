@@ -42,12 +42,14 @@ pipeline {
                     
                     // Wait for MySQL to be ready
                     bat '''
-                    :loop
-                    docker exec mysql8 mysqladmin -uroot -p1212 ping | findstr "mysqld is alive" && goto :done
-                    timeout /t 5
-                    goto :loop
-                    :done
-                    '''
+echo Waiting for MySQL to be ready...
+docker exec mysql8 bash -c "for i in {1..60}; do if mysql -uroot -p1212 -e 'SELECT 1' &> /dev/null; then exit 0; fi; sleep 1; done; exit 1"
+if %errorlevel% neq 0 (
+    echo MySQL failed to start properly
+    exit 1
+)
+echo MySQL is ready
+'''
                     
                     // Execute the SQL script properly
                     bat 'docker cp scriptdb.sql mysql8:/tmp/scriptdb.sql'
