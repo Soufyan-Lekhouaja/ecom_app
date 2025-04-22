@@ -14,7 +14,7 @@ services:
     networks:
       - ecom-network
     healthcheck:
-      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-uroot", "-p1212"]
+      test: ["CMD", "mysqladmin", "ping", "-h", "mysql8", "-uroot", "-p1212"]
       interval: 10s
       timeout: 5s
       retries: 5
