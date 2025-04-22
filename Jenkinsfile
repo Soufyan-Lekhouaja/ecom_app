@@ -17,13 +17,11 @@ pipeline {
         stage('Setup Network and MySQL') {
             steps {
                 script {
-                    // Créer le réseau Docker s’il n’existe pas
+                    // Créer le réseau Docker s'il n'existe pas
                     bat 'docker network inspect ecom-network || docker network create ecom-network'
-
-                    // Stop + remove MySQL s’il existe déjà
+                    // Stop + remove MySQL s'il existe déjà
                     bat 'docker stop mysql8 || exit 0'
                     bat 'docker rm mysql8 || exit 0'
-
                     // Lancer le conteneur MySQL
                     bat '''
                     docker run -d --name mysql8 --network ecom-network ^
@@ -37,26 +35,26 @@ pipeline {
             }
         }
         stage('Init Database') {
-    steps {
-        script {
-            // Verify file exists
-            bat 'dir scriptdb.sql'
-            
-            // Wait for MySQL to be ready
-            bat '''
-            :loop
-            docker exec mysql8 mysqladmin -uroot -p1212 ping | findstr "mysqld is alive" && goto :done
-            timeout /t 5
-            goto :loop
-            :done
-            '''
-            
-            // Copy the file
-            bat 'docker cp scriptdb.sql mysql8:/scriptdb.sql'
-            bat 'docker exec -i mysql8 mysql -uroot -p1212 ecomjava < /scriptdb.sql'
+            steps {
+                script {
+                    // Verify file exists
+                    bat 'dir scriptdb.sql'
+                    
+                    // Wait for MySQL to be ready
+                    bat '''
+                    :loop
+                    docker exec mysql8 mysqladmin -uroot -p1212 ping | findstr "mysqld is alive" && goto :done
+                    timeout /t 5
+                    goto :loop
+                    :done
+                    '''
+                    
+                    // Execute the SQL script properly
+                    bat 'docker cp scriptdb.sql mysql8:/tmp/scriptdb.sql'
+                    bat 'docker exec mysql8 mysql -uroot -p1212 ecomjava -e "source /tmp/scriptdb.sql"'
+                }
+            }
         }
-    }
-}
         stage('Build') {
             steps {
                 bat 'mvn clean install'
