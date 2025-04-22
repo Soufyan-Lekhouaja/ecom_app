@@ -1,76 +1,38 @@
 pipeline {
     agent any
     environment {
-        DOCKER_IMAGE = 'ecomapp:latest'
+        DOCKER_COMPOSE_FILE = 'docker-compose.yml'
     }
     stages {
-        stage('Deploy MySQL') {
+        stage('Checkout') {
+            steps {
+                git url: 'https://github.com/Soufyan-Lekhouaja/ecom_app', branch: 'main'
+            }
+        }
+        stage('Start MySQL Service') {
+            steps {
+                // Launch only the mysql8 service
+                bat "docker-compose -f ${env.DOCKER_COMPOSE_FILE} up -d mysql8"
+            }
+        }
+        stage('Wait for MySQL Healthy') {
             steps {
                 script {
-                    bat 'docker-compose -f docker-compose.yml down || echo "No existing containers to stop"'
-                    bat 'docker-compose -f docker-compose.yml up -d mysql8'
                     bat '''
 :loop
-docker exec mysql8 mysqladmin -uroot -p1212 ping | findstr "mysqld is alive" && goto done
-timeout /t 5 >nul
-goto loop
+SET STATE=\"$(docker inspect --format '{{.State.Health.Status}}' mysql8)\"
+IF "%STATE%"=="healthy" GOTO done
+TIMEOUT /T 5 > NUL
+GOTO loop
 :done
 '''
-
-                    bat 'docker exec mysql8 mysql -uroot -p1212 ecomjava -e "SHOW TABLES"'
                 }
             }
         }
-stage('Build & Package') {
-    steps {
-        bat 'mvn clean package'
-    }
-}
-
-        stage('Build Docker Image') {
-            steps {
-                bat 'docker build -t ecomapp:latest .'
-            }
-        }
-        stage('Deploy ecomapp') {
-            steps {
-                bat 'docker-compose -f docker-compose.yml up -d ecomapp'
-            }
-        }
-        stage('Health Check') {
-    steps {
-        script {
-            bat '''
-            set RETRIES=12
-            set COUNT=0
-            :loop
-            curl -f http://localhost:8083 && goto done
-            echo Waiting for ecomapp to be ready...
-            timeout /t 5 >nul
-            set /a COUNT+=1
-            if %COUNT% GEQ %RETRIES% goto fail
-            goto loop
-            :done
-            echo ecomapp is up!
-            goto end
-            :fail
-            echo ecomapp did not start in time.
-            exit 1
-            :end
-            '''
-        }
-    }
-}
-
     }
     post {
-        success {
-            echo "Application successfully deployed."
-        }
         failure {
-            echo "Deployment failed. Logs:"
-            bat 'docker logs mysql8'
-            bat 'docker logs ecomapp'
+            echo 'MySQL deployment failed.'
         }
     }
 }
