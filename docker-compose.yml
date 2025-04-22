@@ -1,30 +1,37 @@
 version: '3.8'
 services:
-  mysql8:
-    image: mysql:8
+  mysql:
+    image: mysql:8.0
     environment:
       MYSQL_ROOT_PASSWORD: 1212
       MYSQL_DATABASE: ecomjava
+    ports:
+      - "3306:3306"
+    volumes:
+      - mysql_data:/var/lib/mysql
+      - ./scriptdb.sql:/docker-entrypoint-initdb.d/scriptdb.sql
     networks:
       - ecom-network
     healthcheck:
-      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-uroot", "-p1212"]
       interval: 10s
       timeout: 5s
       retries: 5
   ecomapp:
     image: ecomapp:latest
-    depends_on:
-      mysql8:
-        condition: service_healthy
     environment:
-      SPRING_DATASOURCE_URL: jdbc:mysql://mysql8:3306/ecomjava
+      SPRING_DATASOURCE_URL: jdbc:mysql://mysql:3306/ecomjava?useSSL=false&serverTimezone=UTC&allowPublicKeyRetrieval=true
       SPRING_DATASOURCE_USERNAME: root
       SPRING_DATASOURCE_PASSWORD: 1212
-    networks:
-      - ecom-network
     ports:
       - "8083:8083"
+    depends_on:
+      mysql:
+        condition: service_healthy
+    networks:
+      - ecom-network
 networks:
   ecom-network:
     driver: bridge
+volumes:
+  mysql_data:
