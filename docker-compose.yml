@@ -1,9 +1,7 @@
 version: '3.8'
-
 services:
   mysql:
-    container_name: mysql8  # Explicitly name the container as mysql8
-    image: mysql:8.0
+    image: mysql8
     environment:
       MYSQL_ROOT_PASSWORD: 1212
       MYSQL_DATABASE: ecomjava
@@ -19,24 +17,21 @@ services:
       interval: 10s
       timeout: 5s
       retries: 5
-
   ecomapp:
     image: ecomapp:latest
     environment:
-      SPRING_DATASOURCE_URL: jdbc:mysql://mysql8:3306/ecomjava?useSSL=false&serverTimezone=UTC&allowPublicKeyRetrieval=true  # Use mysql8 container name
+      SPRING_DATASOURCE_URL: jdbc:mysql://mysql:3306/ecomjava?useSSL=false&serverTimezone=UTC&allowPublicKeyRetrieval=true
       SPRING_DATASOURCE_USERNAME: root
       SPRING_DATASOURCE_PASSWORD: 1212
     ports:
       - "8083:8083"
     depends_on:
       mysql:
-        condition: service_healthy  # Ensure mysql is healthy before starting ecomapp
+        condition: service_healthy
     networks:
       - ecom-network
-
 networks:
   ecom-network:
     driver: bridge
-
 volumes:
   mysql_data:
