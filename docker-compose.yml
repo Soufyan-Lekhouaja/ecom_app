@@ -1,4 +1,5 @@
 version: '3.8'
+
 services:
   mysql8:
     image: mysql:8.0
@@ -14,10 +15,11 @@ services:
     networks:
       - ecom-network
     healthcheck:
-      test: ["CMD", "mysqladmin", "ping", "-h", "mysql8", "-uroot", "-p1212"]
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-uroot", "-p1212"]
       interval: 10s
       timeout: 5s
       retries: 5
+
   ecomapp:
     image: ecomapp:latest
     container_name: ecomapp
@@ -32,8 +34,10 @@ services:
         condition: service_healthy
     networks:
       - ecom-network
+
 networks:
   ecom-network:
     driver: bridge
+
 volumes:
   mysql_data:
