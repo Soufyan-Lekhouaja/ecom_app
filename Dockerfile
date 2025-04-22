@@ -5,7 +5,7 @@ FROM openjdk:17-jdk-slim
 WORKDIR /app
 
 # Copier le contenu du projet dans le conteneur
-COPY target/ecomapp.jar /app/ecomapp.jar
+COPY . .
 # Construire l'application avec Maven
 #RUN mvn clean install
 
