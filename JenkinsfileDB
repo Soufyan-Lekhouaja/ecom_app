@@ -1,41 +1,82 @@
 pipeline {
-  agent any
-  environment {
-    DOCKER_COMPOSE_FILE = 'docker-compose.yml'
-  }
-  stages {
-    stage('Checkout') {
-      steps {
-        git url: 'https://github.com/Soufyan-Lekhouaja/ecom_app', branch: 'master'
-      }
+    agent any
+    tools {
+        maven 'Maven 3.9.9'
+        jdk '17.0.12'
     }
-    stage('Start PostgreSQL Service') {
-      steps {
-        bat "docker-compose -f ${env.DOCKER_COMPOSE_FILE} up -d postgres"
-      }
+    environment {
+        DOCKER_COMPOSE_FILE = 'docker-compose.yml'
     }
-    stage('Wait for PostgreSQL Healthy') {
-      steps {
-        bat '''
-        @echo off
-        echo Waiting for postgres to become healthy...
-        :loop
-        for /f "tokens=*" %%i in ('docker inspect --format "{{.State.Health.Status}}" postgres') do set STATE=%%i
-        echo Current status is "%STATE%"
-        if "%STATE%"=="healthy" (
-          echo postgres is healthy!
-          goto done
-        )
-        timeout /t 5 >nul
-        goto loop
-        :done
-        '''
-      }
+    stages {
+        stage('Checkout') {
+            steps {
+                git url: 'https://github.com/Soufyan-Lekhouaja/ecom_app', branch: 'master'
+            }
+        }
+        stage('Start PostgreSQL Service') {
+            steps {
+                bat "docker-compose -f ${env.DOCKER_COMPOSE_FILE} up -d postgres"
+            }
+        }
+        stage('Wait for PostgreSQL Healthy') {
+            steps {
+                bat '''
+                @echo off
+                echo Waiting for postgres to become healthy...
+                set MAX_RETRIES=30
+                set COUNTER=0
+                
+                :loop
+                set /a COUNTER+=1
+                echo Attempt %COUNTER% of %MAX_RETRIES%
+                
+                for /f "tokens=*" %%i in ('docker inspect --format "{{.State.Health.Status}}" postgres 2^>nul') do set STATE=%%i
+                echo Current status is "%STATE%"
+                
+                if "%STATE%"=="healthy" (
+                  echo postgres is healthy!
+                  goto done
+                )
+                
+                if %COUNTER% geq %MAX_RETRIES% (
+                  echo Maximum retries reached. PostgreSQL may not be healthy.
+                  echo Checking if it's at least running...
+                  
+                  docker exec postgres pg_isready -U root -d ecommjava
+                  if errorlevel 1 (
+                    echo PostgreSQL is not responding. Failing the build.
+                    exit 1
+                  ) else (
+                    echo PostgreSQL is responding to connections even though health check hasn't passed. Proceeding with caution.
+                    goto done
+                  )
+                )
+                
+                timeout /t 10 >nul
+                goto loop
+                :done
+                '''
+            }
+        }
+        stage('Build Application') {
+            steps {
+                bat 'mvn clean package -DskipTests'
+            }
+        }
+        stage('Build Docker Image') {
+            steps {
+                bat 'docker build -t ecomapp:latest .'
+            }
+        }
+        stage('Start Application Service') {
+            steps {
+                bat "docker-compose -f ${env.DOCKER_COMPOSE_FILE} up -d --no-deps ecomapp"
+            }
+        }
     }
-  }
-  post {
-    failure {
-      echo 'PostgreSQL deployment failed.'
+    post {
+        failure {
+            echo 'Deployment failed.'
+        }
     }
-  }
 }
