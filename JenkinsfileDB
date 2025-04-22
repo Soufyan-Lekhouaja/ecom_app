@@ -10,12 +10,13 @@ pipeline {
                     bat 'docker-compose -f docker-compose.yml down || echo "No existing containers to stop"'
                     bat 'docker-compose -f docker-compose.yml up -d mysql8'
                     bat '''
-                    :loop
-                    docker exec mysql mysqladmin -uroot -p1212 ping | findstr "mysqld is alive" && goto :done
-                    timeout /t 5
-                    goto :loop
-                    :done
-                    '''
+:loop
+docker exec mysql8 mysqladmin -uroot -p1212 ping | findstr "mysqld is alive" && goto done
+timeout /t 5 >nul
+goto loop
+:done
+'''
+
                     bat 'docker exec mysql mysql8 -uroot -p1212 ecomjava -e "SHOW TABLES"'
                 }
             }
