@@ -1,38 +1,41 @@
 pipeline {
-    agent any
-    environment {
-        DOCKER_COMPOSE_FILE = 'docker-compose.yml'
+  agent any
+  environment {
+    DOCKER_COMPOSE_FILE = 'docker-compose.yml'
+  }
+  stages {
+    stage('Checkout') {
+      steps {
+        git url: 'https://github.com/Soufyan-Lekhouaja/ecom_app', branch: 'main'
+      }
     }
-    stages {
-        stage('Checkout') {
-            steps {
-                git url: 'https://github.com/Soufyan-Lekhouaja/ecom_app', branch: 'master'
-            }
-        }
-        stage('Start MySQL Service') {
-            steps {
-                // Launch only the mysql8 service
-                bat "docker-compose -f ${env.DOCKER_COMPOSE_FILE} up -d mysql8"
-            }
-        }
-        stage('Wait for MySQL Healthy') {
-            steps {
-                script {
-                    bat '''
-:loop
-SET STATE=\"$(docker inspect --format '{{.State.Health.Status}}' mysql8)\"
-IF "%STATE%"=="healthy" GOTO done
-TIMEOUT /T 5 > NUL
-GOTO loop
-:done
-'''
-                }
-            }
-        }
+    stage('Start MySQL Service') {
+      steps {
+        bat "docker-compose -f ${env.DOCKER_COMPOSE_FILE} up -d mysql8"
+      }
     }
-    post {
-        failure {
-            echo 'MySQL deployment failed.'
-        }
+    stage('Wait for MySQL Healthy') {
+      steps {
+        bat '''
+        @echo off
+        echo Waiting for mysql8 to become healthy...
+        :loop
+        for /f "tokens=*" %%i in ('docker inspect --format "{{.State.Health.Status}}" mysql8') do set STATE=%%i
+        echo Current status is "%STATE%"
+        if "%STATE%"=="healthy" (
+          echo mysql8 is healthy!
+          goto done
+        )
+        timeout /t 5 >nul
+        goto loop
+        :done
+        '''
+      }
     }
+  }
+  post {
+    failure {
+      echo 'MySQL deployment failed.'
+    }
+  }
 }
