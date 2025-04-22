@@ -57,9 +57,4 @@ INSERT INTO PRODUCT(description, image, name, price, quantity, weight, category_
                                                                                         ('Woops! There goes the eggs...', 'https://www.nicepng.com/png/full/813-8132637_poiata-bunicii-cracked-egg.png', 'Cracked Eggs', 1, 90, 43, 9);
 
 
-# create indexes
-CREATE INDEX FK7u438kvwr308xcwr4wbx36uiw
-    ON PRODUCT (category_id);
 
-CREATE INDEX FKt23apo8r9s2hse1dkt95ig0w5
-    ON PRODUCT (customer_id);
