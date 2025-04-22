@@ -49,7 +49,7 @@ pipeline {
         }
         stage('Run Docker Container') {
             steps {
-                bat 'docker run -d -p 8080:8080 --name ecomapp ecomapp:latest'
+                bat 'docker run -d -p 8083:8083 --name ecomapp ecomapp:latest'
             }
         }
     }
