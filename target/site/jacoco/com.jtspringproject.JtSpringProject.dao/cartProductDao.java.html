@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>cartProductDao.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">JtSpringProject</a> &gt; <a href="index.source.html" class="el_package">com.jtspringproject.JtSpringProject.dao</a> &gt; <span class="el_source">cartProductDao.java</span></div><h1>cartProductDao.java</h1><pre class="source lang-java linenums">package com.jtspringproject.JtSpringProject.dao;
+
+import com.jtspringproject.JtSpringProject.models.Cart;
+import com.jtspringproject.JtSpringProject.models.CartProduct;
+import com.jtspringproject.JtSpringProject.models.Product;
+import org.hibernate.SessionFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Repository;
+import org.springframework.transaction.annotation.Transactional;
+
+import java.util.List;
+
+@Repository
+<span class="fc" id="L14">public class cartProductDao {</span>
+    @Autowired
+    private SessionFactory sessionFactory;
+
+    public void setSessionFactory(SessionFactory sf) {
+<span class="nc" id="L19">        this.sessionFactory = sf;</span>
+<span class="nc" id="L20">    }</span>
+
+    @Transactional
+    public CartProduct addCartProduct(CartProduct cartProduct) {
+<span class="nc" id="L24">        this.sessionFactory.getCurrentSession().save(cartProduct);</span>
+<span class="nc" id="L25">        return cartProduct;</span>
+    }
+
+    @Transactional
+    public List&lt;CartProduct&gt; getCartProducts() {
+<span class="nc" id="L30">        return this.sessionFactory.getCurrentSession().createQuery(&quot;from CART_PRODUCT &quot;).list();</span>
+    }
+
+    @Transactional
+    public List&lt;Product&gt; getProductByCartID(Integer cart_id) {
+<span class="nc" id="L35">        String sql = &quot;SELECT product_id FROM cart_product WHERE cart_id = :cart_id&quot;;</span>
+<span class="nc" id="L36">        List&lt;Integer&gt; productIds = this.sessionFactory.getCurrentSession()</span>
+<span class="nc" id="L37">                .createNativeQuery(sql)</span>
+<span class="nc" id="L38">                .setParameter(&quot;cart_id&quot;, cart_id)</span>
+<span class="nc" id="L39">                .list();</span>
+
+<span class="nc" id="L41">        sql = &quot;SELECT * FROM product WHERE id IN (:product_ids)&quot;;</span>
+<span class="nc" id="L42">        return this.sessionFactory.getCurrentSession()</span>
+<span class="nc" id="L43">                .createNativeQuery(sql, Product.class)</span>
+<span class="nc" id="L44">                .setParameterList(&quot;product_ids&quot;, productIds)</span>
+<span class="nc" id="L45">                .list();</span>
+    }
+
+    @Transactional
+    public void updateCartProduct(CartProduct cartProduct) {
+<span class="nc" id="L50">        this.sessionFactory.getCurrentSession().update(cartProduct);</span>
+<span class="nc" id="L51">    }</span>
+
+    @Transactional
+    public void deleteCartProduct(CartProduct cartProduct) {
+<span class="nc" id="L55">        this.sessionFactory.getCurrentSession().delete(cartProduct);</span>
+<span class="nc" id="L56">    }</span>
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.13.202504020838</span></div></body></html>

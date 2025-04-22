@@ -1,0 +1,73 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>HibernateConfiguration.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">JtSpringProject</a> &gt; <a href="index.source.html" class="el_package">com.jtspringproject.JtSpringProject</a> &gt; <span class="el_source">HibernateConfiguration.java</span></div><h1>HibernateConfiguration.java</h1><pre class="source lang-java linenums">package com.jtspringproject.JtSpringProject;
+ 
+import java.util.Properties;
+ 
+import javax.sql.DataSource;
+ 
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
+import org.springframework.jdbc.datasource.DriverManagerDataSource;
+import org.springframework.orm.hibernate5.HibernateTransactionManager;
+import org.springframework.orm.hibernate5.LocalSessionFactoryBean;
+import org.springframework.transaction.annotation.EnableTransactionManagement;
+ 
+@Configuration
+@EnableTransactionManagement
+<span class="fc" id="L17">public class HibernateConfiguration {</span>
+    @Value(&quot;${db.driver}&quot;)
+    private String DRIVER;
+ 
+    @Value(&quot;${db.password}&quot;)
+    private String PASSWORD;
+ 
+    @Value(&quot;${db.url}&quot;)
+    private String URL;
+ 
+    @Value(&quot;${db.username}&quot;)
+    private String USERNAME;
+ 
+    @Value(&quot;${hibernate.dialect}&quot;)
+    private String DIALECT;
+ 
+    @Value(&quot;${hibernate.show_sql}&quot;)
+    private String SHOW_SQL;
+ 
+    @Value(&quot;${hibernate.hbm2ddl.auto}&quot;)
+    private String HBM2DDL_AUTO;
+ 
+    @Value(&quot;${entitymanager.packagesToScan}&quot;)
+    private String PACKAGES_TO_SCAN;
+ 
+    @Bean
+    public DataSource dataSource() {
+<span class="fc" id="L44">        DriverManagerDataSource dataSource = new DriverManagerDataSource();</span>
+<span class="fc" id="L45">        dataSource.setDriverClassName(DRIVER);</span>
+<span class="fc" id="L46">        dataSource.setUrl(URL);</span>
+<span class="fc" id="L47">        dataSource.setUsername(USERNAME);</span>
+<span class="fc" id="L48">        dataSource.setPassword(PASSWORD);</span>
+<span class="fc" id="L49">        return dataSource;</span>
+    }
+ 
+    @Bean
+    public LocalSessionFactoryBean sessionFactory() {
+<span class="fc" id="L54">        LocalSessionFactoryBean sessionFactory = new LocalSessionFactoryBean();</span>
+<span class="fc" id="L55">        sessionFactory.setDataSource(dataSource());</span>
+<span class="fc" id="L56">        sessionFactory.setPackagesToScan(PACKAGES_TO_SCAN);</span>
+<span class="fc" id="L57">        Properties hibernateProperties = new Properties();</span>
+<span class="fc" id="L58">        hibernateProperties.put(&quot;hibernate.dialect&quot;, DIALECT);</span>
+<span class="fc" id="L59">        hibernateProperties.put(&quot;hibernate.show_sql&quot;, SHOW_SQL);</span>
+<span class="fc" id="L60">        hibernateProperties.put(&quot;hibernate.hbm2ddl.auto&quot;, HBM2DDL_AUTO);</span>
+<span class="fc" id="L61">        sessionFactory.setHibernateProperties(hibernateProperties);</span>
+ 
+<span class="fc" id="L63">        return sessionFactory;</span>
+    }
+ 
+    @Bean
+    public HibernateTransactionManager transactionManager() {
+<span class="fc" id="L68">        HibernateTransactionManager transactionManager = new HibernateTransactionManager();</span>
+<span class="fc" id="L69">        transactionManager.setSessionFactory(sessionFactory().getObject());</span>
+<span class="fc" id="L70">        return transactionManager;</span>
+    }   
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.13.202504020838</span></div></body></html>

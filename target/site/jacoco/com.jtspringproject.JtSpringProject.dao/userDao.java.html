@@ -1,0 +1,74 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>userDao.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">JtSpringProject</a> &gt; <a href="index.source.html" class="el_package">com.jtspringproject.JtSpringProject.dao</a> &gt; <span class="el_source">userDao.java</span></div><h1>userDao.java</h1><pre class="source lang-java linenums">package com.jtspringproject.JtSpringProject.dao;
+
+import java.util.List;
+
+import javax.persistence.NoResultException;
+import javax.sound.midi.Soundbank;
+
+import org.hibernate.Session;
+import org.hibernate.SessionFactory;
+import org.hibernate.query.Query;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Repository;
+import org.springframework.transaction.annotation.Transactional;
+
+import com.jtspringproject.JtSpringProject.models.User;
+
+
+@Repository
+<span class="fc" id="L19">public class userDao {</span>
+	@Autowired
+    private SessionFactory sessionFactory;
+	
+	public void setSessionFactory(SessionFactory sf) {
+<span class="nc" id="L24">        this.sessionFactory = sf;</span>
+<span class="nc" id="L25">    }</span>
+@Transactional
+public List&lt;User&gt; getAllUser() {
+<span class="fc" id="L28">        Session session = this.sessionFactory.getCurrentSession();</span>
+<span class="fc" id="L29">		List&lt;User&gt;  userList = session.createQuery(&quot;from User&quot;).list();</span>
+<span class="fc" id="L30">        return userList;</span>
+    }
+@Transactional
+public User saveUser(User user) {
+<span class="fc" id="L34">		this.sessionFactory.getCurrentSession().saveOrUpdate(user);</span>
+<span class="fc" id="L35">		System.out.println(&quot;User added&quot; + user.getId());</span>
+<span class="fc" id="L36">        return user;</span>
+	}
+@Transactional
+public User getUser(String username, String password) {
+<span class="fc" id="L40">	Query query = sessionFactory.getCurrentSession().createQuery(&quot;from User where username = :username&quot;);</span>
+<span class="fc" id="L41">	query.setParameter(&quot;username&quot;, username);</span>
+
+	try {
+<span class="fc" id="L44">		User user = (User) query.getSingleResult();</span>
+<span class="pc bpc" id="L45" title="1 of 2 branches missed.">		if (password.equals(user.getPassword())) {</span>
+<span class="fc" id="L46">			return user;</span>
+		} else {
+<span class="nc" id="L48">			return null;</span>
+		}
+<span class="fc" id="L50">	} catch (Exception e) {</span>
+<span class="fc" id="L51">		System.out.println(e.getMessage());</span>
+<span class="fc" id="L52">		return null;</span>
+	}
+}
+@Transactional
+public boolean userExists(String username) {
+<span class="fc" id="L57">		Query query = sessionFactory.getCurrentSession().createQuery(&quot;from User where username = :username&quot;);</span>
+<span class="fc" id="L58">		query.setParameter(&quot;username&quot;,username);</span>
+<span class="fc bfc" id="L59" title="All 2 branches covered.">		return !query.getResultList().isEmpty();</span>
+	}
+@Transactional
+public User getUserByUsername(String username) {
+<span class="fc" id="L63">	        Query&lt;User&gt; query = sessionFactory.getCurrentSession().createQuery(&quot;from User where username = :username&quot;, User.class);</span>
+<span class="fc" id="L64">	        query.setParameter(&quot;username&quot;, username);</span>
+	        
+	        try {
+<span class="fc" id="L67">	            return query.getSingleResult();</span>
+<span class="nc" id="L68">	        } catch (Exception e) {</span>
+<span class="nc" id="L69">	            System.out.println(e.getMessage());</span>
+<span class="nc" id="L70">	            return null; </span>
+	        }
+    	}
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.13.202504020838</span></div></body></html>

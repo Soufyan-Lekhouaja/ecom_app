@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>productDao.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">JtSpringProject</a> &gt; <a href="index.source.html" class="el_package">com.jtspringproject.JtSpringProject.dao</a> &gt; <span class="el_source">productDao.java</span></div><h1>productDao.java</h1><pre class="source lang-java linenums">package com.jtspringproject.JtSpringProject.dao;
+
+import java.util.List;
+
+import org.hibernate.Session;
+import org.hibernate.SessionFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Repository;
+import org.springframework.transaction.annotation.Transactional;
+
+import com.jtspringproject.JtSpringProject.models.Category;
+import com.jtspringproject.JtSpringProject.models.Product;
+
+@Repository
+<span class="fc" id="L15">public class productDao {</span>
+	@Autowired
+    private SessionFactory sessionFactory;
+	
+	public void setSessionFactory(SessionFactory sf) {
+<span class="nc" id="L20">        this.sessionFactory = sf;</span>
+<span class="nc" id="L21">    }</span>
+	
+	@Transactional
+	public List&lt;Product&gt; getProducts(){
+<span class="nc" id="L25">		return this.sessionFactory.getCurrentSession().createQuery(&quot;from PRODUCT&quot;).list();</span>
+	}
+	
+	@Transactional
+	public Product addProduct(Product product) {
+<span class="nc" id="L30">		this.sessionFactory.getCurrentSession().save(product);</span>
+<span class="nc" id="L31">		return product;</span>
+	}
+	
+	@Transactional
+	public Product getProduct(int id) {
+<span class="nc" id="L36">		return this.sessionFactory.getCurrentSession().get(Product.class, id);</span>
+	}
+
+	public Product updateProduct(Product product){
+<span class="nc" id="L40">		this.sessionFactory.getCurrentSession().update(String.valueOf(Product.class),product);</span>
+<span class="nc" id="L41">		return product;</span>
+	}
+	@Transactional
+	public Boolean deletProduct(int id) {
+
+<span class="nc" id="L46">		Session session = this.sessionFactory.getCurrentSession();</span>
+<span class="nc" id="L47">		Object persistanceInstance = session.load(Product.class, id);</span>
+
+<span class="nc bnc" id="L49" title="All 2 branches missed.">		if (persistanceInstance != null) {</span>
+<span class="nc" id="L50">			session.delete(persistanceInstance);</span>
+<span class="nc" id="L51">			return true;</span>
+		}
+<span class="nc" id="L53">		return false;</span>
+	}
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.13.202504020838</span></div></body></html>
