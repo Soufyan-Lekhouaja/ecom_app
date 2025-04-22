@@ -30,7 +30,7 @@ pipeline {
                     :done
                     '''
                     // Verify database schema
-                    docker exec mysql8 mysql -uroot -p1212 -h127.0.0.1 ecomjava -e "SHOW TABLES"
+                    bat 'docker exec mysql8 mysql -uroot -p1212 -h127.0.0.1 ecomjava -e "SHOW TABLES"'
 
                 }
             }
