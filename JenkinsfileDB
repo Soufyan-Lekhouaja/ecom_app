@@ -40,20 +40,11 @@ mysql:8.0
                     
                     // Wait for MySQL to be ready with timeout
                     bat '''
-                    set MAX_RETRIES=30
-                    set RETRY_COUNT=0
                     :loop
-                    set /a RETRY_COUNT+=1
-                    echo Waiting for MySQL to start... Attempt %RETRY_COUNT%/%MAX_RETRIES%
-                    docker exec mysql8 mysqladmin -uroot -p%MYSQL_CREDS_PSW% ping | findstr "mysqld is alive" && goto :done
-                    if %RETRY_COUNT% geq %MAX_RETRIES% (
-                        echo Maximum retries reached. MySQL failed to start.
-                        exit 1
-                    )
+                    docker exec mysql8 mysqladmin -uroot -p1212 ping | findstr "mysqld is alive" && goto :done
                     timeout /t 5
                     goto :loop
                     :done
-                    echo MySQL is ready!
                     '''
                     
                     // Execute the SQL script
