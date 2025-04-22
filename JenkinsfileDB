@@ -1,40 +1,49 @@
 pipeline {
     agent any
     environment {
-        DOCKER_IMAGE = 'ecomdb'
-        MYSQL_CREDS = credentials('mysql-credentials')
+        DOCKER_IMAGE = 'ecomapp:latest'
     }
     stages {
-        stage('Checkout') {
-            steps {
-                git 'https://github.com/Soufyan-Lekhouaja/ecom_app'
-            }
-        }
-        stage('Deploy with Docker Compose') {
-    steps {
-        script {
-            bat 'docker-compose -f docker-compose.yml up -d mysql'
-        }
-    }
-}
-        stage('Health Check') {
+        stage('Deploy MySQL') {
             steps {
                 script {
-                    // Perform a basic health check on the database
-                    bat 'docker exec mysql8 mysql -uroot -p%MYSQL_CREDS_PSW% -e "SELECT 1"'
-                    echo "MySQL container is running and healthy"
+                    bat 'docker-compose -f docker-compose.yml down || echo "No existing containers to stop"'
+                    bat 'docker-compose -f docker-compose.yml up -d mysql'
+                    bat '''
+                    :loop
+                    docker exec mysql mysqladmin -uroot -p1212 ping | findstr "mysqld is alive" && goto :done
+                    timeout /t 5
+                    goto :loop
+                    :done
+                    '''
+                    bat 'docker exec mysql mysql -uroot -p1212 ecomjava -e "SHOW TABLES"'
                 }
+            }
+        }
+        stage('Build Docker Image') {
+            steps {
+                bat 'docker build -t ecomapp:latest .'
+            }
+        }
+        stage('Deploy ecomapp') {
+            steps {
+                bat 'docker-compose -f docker-compose.yml up -d ecomapp'
+            }
+        }
+        stage('Health Check') {
+            steps {
+                bat 'curl -f http://localhost:8083 || exit 1'
             }
         }
     }
     post {
-        failure {
-            echo "Pipeline failed! Check MySQL container status and logs:"
-            bat 'docker logs mysql8'
-        }
         success {
-            echo "MySQL container successfully deployed on production environment"
+            echo "Application successfully deployed."
+        }
+        failure {
+            echo "Deployment failed. Logs:"
+            bat 'docker logs mysql'
+            bat 'docker logs ecomapp'
         }
     }
 }
-
