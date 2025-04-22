@@ -53,7 +53,8 @@ echo MySQL is ready
                     
                     // Execute the SQL script properly
                     bat 'docker cp scriptdb.sql mysql8:/tmp/scriptdb.sql'
-                    bat 'docker exec mysql8 mysql -h 127.0.0.1 -uroot -p1212 ecomjava -e "source /tmp/scriptdb.sql"'
+                    bat 'docker exec mysql8 mysql -uroot -p1212 ecomjava -e "source /tmp/scriptdb.sql"
+'
                 }
             }
         }
