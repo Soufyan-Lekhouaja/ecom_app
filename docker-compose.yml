@@ -6,7 +6,7 @@ services:
     container_name: mysql8
     environment:
       MYSQL_ROOT_PASSWORD: 1212
-      MYSQL_DATABASE: ecomjava
+      MYSQL_DATABASE: ecommjava
     ports:
       - "3306:3306"
     volumes:
@@ -24,7 +24,7 @@ services:
     image: ecomapp:latest
     container_name: ecomapp
     environment:
-      SPRING_DATASOURCE_URL: jdbc:mysql://mysql8:3306/ecomjava?useSSL=false&serverTimezone=UTC&allowPublicKeyRetrieval=true
+      SPRING_DATASOURCE_URL: jdbc:mysql://mysql8:3306/ecommjava?useSSL=false&serverTimezone=UTC&allowPublicKeyRetrieval=true
       SPRING_DATASOURCE_USERNAME: root
       SPRING_DATASOURCE_PASSWORD: 1212
     ports:
