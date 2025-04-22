@@ -17,7 +17,7 @@ goto loop
 :done
 '''
 
-                    bat 'docker exec mysql mysql8 -uroot -p1212 ecomjava -e "SHOW TABLES"'
+                    bat 'docker exec mysql8 mysql -uroot -p1212 ecomjava -e "SHOW TABLES"'
                 }
             }
         }
