@@ -1,60 +1,52 @@
-# SQL configs
-SET SQL_MODE ='IGNORE_SPACE,ERROR_FOR_DIVISION_BY_ZERO,NO_ENGINE_SUBSTITUTION';
+-- PostgreSQL in Docker will use the database specified by POSTGRES_DB
+-- No need to create or connect to the database explicitly
 
-# create database and use it
-CREATE DATABASE IF NOT EXISTS ecomjava;
-USE ecomjava;
-
-# create the category table
+-- Create the category table
 CREATE TABLE IF NOT EXISTS CATEGORY(
-category_id int unique key not null auto_increment primary key,
-name        varchar(255) null
+    category_id SERIAL PRIMARY KEY,
+    name VARCHAR(255)
 );
 
-# insert default categories
-INSERT INTO CATEGORY(name) VALUES ('Fruits'),
-                                  ('Vegetables'),
-                                  ('Meat'),
-                                  ('Fish'),
-                                  ('Dairy'),
-                                  ('Bakery'),
-                                  ('Drinks'),
-                                  ('Sweets'),
-                                  ('Other');
+-- Insert default categories
+INSERT INTO CATEGORY(name) VALUES 
+    ('Fruits'),
+    ('Vegetables'),
+    ('Meat'),
+    ('Fish'),
+    ('Dairy'),
+    ('Bakery'),
+    ('Drinks'),
+    ('Sweets'),
+    ('Other');
 
-# create the customer table
+-- Create the customer table
 CREATE TABLE IF NOT EXISTS CUSTOMER(
-id       int unique key not null auto_increment primary key,
-address  varchar(255) null,
-email    varchar(255) null,
-password varchar(255) null,
-role     varchar(255) null,
-username varchar(255) null,
-UNIQUE (username)
+    id SERIAL PRIMARY KEY,
+    address VARCHAR(255),
+    email VARCHAR(255),
+    password VARCHAR(255),
+    role VARCHAR(255),
+    username VARCHAR(255) UNIQUE
 );
 
-# insert default customers
-INSERT IGNORE INTO CUSTOMER(address, email, password, role, username) VALUES
-                                                                   ('123, Albany Street', 'admin@nyan.cat', '123', 'ROLE_ADMIN', 'admin'),
-                                                                   ('765, 5th Avenue', 'lisa@gmail.com', '765', 'ROLE_NORMAL', 'lisa');
+-- Insert default customers
+INSERT INTO CUSTOMER(address, email, password, role, username) VALUES
+    ('123, Albany Street', 'admin@nyan.cat', '123', 'ROLE_ADMIN', 'admin'),
+    ('765, 5th Avenue', 'lisa@gmail.com', '765', 'ROLE_NORMAL', 'lisa')
+ON CONFLICT (username) DO NOTHING;
 
-# create the product table
+-- Create the product table
 CREATE TABLE IF NOT EXISTS PRODUCT(
-product_id  int unique key not null auto_increment primary key,
-description varchar(255) null,
-image       varchar(255) null,
-name        varchar(255) null,
-price       int null,
-quantity    int null,
-weight      int null,
-category_id int null,
-customer_id int null
+    product_id SERIAL PRIMARY KEY,
+    description VARCHAR(255),
+    image VARCHAR(255),
+    name VARCHAR(255),
+    price INTEGER,
+    quantity INTEGER,
+    weight INTEGER,
+    category_id INTEGER,
+    customer_id INTEGER
 );
 
-# insert default products
-INSERT INTO PRODUCT(description, image, name, price, quantity, weight, category_id) VALUES
-                                                                                        ('Fresh and juicy', 'https://freepngimg.com/save/9557-apple-fruit-transparent/744x744', 'Apple', 3, 40, 76, 1),
-                                                                                        ('Woops! There goes the eggs...', 'https://www.nicepng.com/png/full/813-8132637_poiata-bunicii-cracked-egg.png', 'Cracked Eggs', 1, 90, 43, 9);
-
-
-
+-- Insert default products
+INSER
