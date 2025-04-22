@@ -34,6 +34,12 @@ pipeline {
                 bat 'mvn deploy'
             }
         }
+        stage('Cleanup Old Container') {
+            steps {
+                bat 'docker rm -f ecomapp || echo "No existing container to remove"'
+            }
+        }
+
         stage('Build Docker Image') {
             steps {
                 script {
