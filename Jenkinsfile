@@ -47,20 +47,30 @@ pipeline {
                 }
             }
         }
-        stage('Run Docker Container') {
-            steps {
-                script {
-                    // Connect to the same Docker network and pass MySQL credentials as env variables
-                    bat '''
-                    docker run -d --name ecomapp ^
-                    --network ecom-network ^
-                    -e SPRING_DATASOURCE_URL=jdbc:mysql://mysql8:3306/ecomjava ^
-                    -e SPRING_DATASOURCE_USERNAME=root ^
-                    -e SPRING_DATASOURCE_PASSWORD=1212 ^
-                    -p 8083:8083 ecomapp:latest
-                    '''
-                }
-            }
+       stage('Run Docker Container') {
+    steps {
+        script {
+            // Wait for MySQL to be ready
+            bat '''
+            :loop
+            docker exec mysql8 mysqladmin -uroot -p1212 ping | findstr "mysqld is alive"
+            if %ERRORLEVEL% NEQ 0 (
+                timeout /t 5
+                goto loop
+            )
+            echo MySQL is ready.
+            '''
+
+            // Run ecomapp container connected to the same network
+            bat '''
+            docker run -d --name ecomapp --network ecom-network ^
+            -e SPRING_DATASOURCE_URL=jdbc:mysql://mysql8:3306/ecomjava ^
+            -e SPRING_DATASOURCE_USERNAME=root ^
+            -e SPRING_DATASOURCE_PASSWORD=1212 ^
+            -e useSSL=false ^
+            -p 8083:8083 ecomapp:latest
+            '''
         }
     }
+}
 }
