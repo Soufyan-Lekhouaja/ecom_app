@@ -1,0 +1,90 @@
+pipeline {
+    agent any
+    environment {
+        DOCKER_IMAGE = 'ecomdb'
+        MYSQL_CREDS = credentials('mysql-credentials')
+    }
+    stages {
+        stage('Checkout') {
+            steps {
+                git 'https://github.com/Soufyan-Lekhouaja/ecom_app'
+            }
+        }
+        stage('Setup Network and MySQL') {
+            steps {
+                script {
+                    // Create Docker network if it doesn't exist
+                    bat 'docker network inspect ecom-network || docker network create ecom-network'
+                    
+                    // Check if container exists, stop and remove if it does
+                    bat '''
+                    docker stop mysql8 || echo "Container not running"
+                    docker rm mysql8 || echo "Container doesn't exist"
+                    '''
+                    
+                    // Launch MySQL container with data volume
+                    bat '''
+                    docker run -d --name mysql8 --network ecom-network ^
+                    -e MYSQL_ROOT_PASSWORD=%MYSQL_CREDS_PSW% ^
+                    -e MYSQL_DATABASE=ecomjava ^
+                    -p 3306:3306 ^
+                    -v mysql_data:/var/lib/mysql ^
+                    -v %CD%/scriptdb.sql:/docker-entrypoint-initdb.d/scriptdb.sql ^
+                    mysql:8.0
+                    '''
+                }
+            }
+        }
+        stage('Init Database') {
+            steps {
+                script {
+                    // Verify file exists
+                    bat 'dir scriptdb.sql || (echo "SQL script not found" && exit 1)'
+                    
+                    // Wait for MySQL to be ready with timeout
+                    bat '''
+                    set MAX_RETRIES=30
+                    set RETRY_COUNT=0
+                    :loop
+                    set /a RETRY_COUNT+=1
+                    echo Waiting for MySQL to start... Attempt %RETRY_COUNT%/%MAX_RETRIES%
+                    docker exec mysql8 mysqladmin -uroot -p%MYSQL_CREDS_PSW% ping | findstr "mysqld is alive" && goto :done
+                    if %RETRY_COUNT% geq %MAX_RETRIES% (
+                        echo Maximum retries reached. MySQL failed to start.
+                        exit 1
+                    )
+                    timeout /t 5
+                    goto :loop
+                    :done
+                    echo MySQL is ready!
+                    '''
+                    
+                    // Execute the SQL script
+                    bat 'docker cp scriptdb.sql mysql8:/tmp/scriptdb.sql'
+                    bat 'docker exec mysql8 mysql -uroot -p%MYSQL_CREDS_PSW% ecomjava -e "source /tmp/scriptdb.sql"'
+                    
+                    // Verify database initialization
+                    bat 'docker exec mysql8 mysql -uroot -p%MYSQL_CREDS_PSW% ecomjava -e "SHOW TABLES"'
+                }
+            }
+        }
+        stage('Health Check') {
+            steps {
+                script {
+                    // Perform a basic health check on the database
+                    bat 'docker exec mysql8 mysql -uroot -p%MYSQL_CREDS_PSW% -e "SELECT 1"'
+                    echo "MySQL container is running and healthy"
+                }
+            }
+        }
+    }
+    post {
+        failure {
+            echo "Pipeline failed! Check MySQL container status and logs:"
+            bat 'docker logs mysql8'
+        }
+        success {
+            echo "MySQL container successfully deployed on production environment"
+        }
+    }
+}
