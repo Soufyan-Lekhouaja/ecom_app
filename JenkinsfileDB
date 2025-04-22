@@ -8,7 +8,7 @@ pipeline {
             steps {
                 script {
                     bat 'docker-compose -f docker-compose.yml down || echo "No existing containers to stop"'
-                    bat 'docker-compose -f docker-compose.yml up -d mysql'
+                    bat 'docker-compose -f docker-compose.yml up -d mysql8'
                     bat '''
                     :loop
                     docker exec mysql mysqladmin -uroot -p1212 ping | findstr "mysqld is alive" && goto :done
@@ -16,7 +16,7 @@ pipeline {
                     goto :loop
                     :done
                     '''
-                    bat 'docker exec mysql mysql -uroot -p1212 ecomjava -e "SHOW TABLES"'
+                    bat 'docker exec mysql mysql8 -uroot -p1212 ecomjava -e "SHOW TABLES"'
                 }
             }
         }
@@ -42,7 +42,7 @@ pipeline {
         }
         failure {
             echo "Deployment failed. Logs:"
-            bat 'docker logs mysql'
+            bat 'docker logs mysql8'
             bat 'docker logs ecomapp'
         }
     }
