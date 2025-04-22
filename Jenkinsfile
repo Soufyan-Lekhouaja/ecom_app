@@ -26,11 +26,13 @@ pipeline {
 
                     // Lancer le conteneur MySQL
                     bat '''
-                    docker run -d --name mysql8 --network ecom-network ^
-                    -e MYSQL_ROOT_PASSWORD=1212 ^
-                    -e MYSQL_DATABASE=ecomjava ^
-                    -p 3306:3306 mysql:8.0
-                    '''
+            docker run -d --name mysql8 --network ecom-network ^
+            -e MYSQL_ROOT_PASSWORD=1212 ^
+            -e MYSQL_DATABASE=ecomjava ^
+            -p 3306:3306 ^
+            -v %CD%/scriptdb.sql:/docker-entrypoint-initdb.d/scriptdb.sql ^
+            mysql:8.0
+            '''
                 }
             }
         }
