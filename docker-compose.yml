@@ -7,6 +7,8 @@ services:
       POSTGRES_PASSWORD: 1212
       POSTGRES_USER: root
       POSTGRES_DB: ecommjava
+      # Add this to improve startup time
+      POSTGRES_INITDB_ARGS: "--nosync"
     ports:
       - "5432:5432"
     volumes:
@@ -15,10 +17,11 @@ services:
     networks:
       - ecom-network
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U root -d ecommjava"]
-      interval: 10s
-      timeout: 5s
-      retries: 5
+      test: ["CMD-SHELL", "pg_isready -U root -d ecommjava || exit 1"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+      start_period: 10s
   ecomapp:
     image: ecomapp:latest
     container_name: ecomapp
