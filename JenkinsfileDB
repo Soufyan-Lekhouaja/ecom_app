@@ -32,10 +32,30 @@ goto loop
             }
         }
         stage('Health Check') {
-            steps {
-                bat 'curl -f http://localhost:8083 || exit 1'
-            }
+    steps {
+        script {
+            bat '''
+            set RETRIES=12
+            set COUNT=0
+            :loop
+            curl -f http://localhost:8083 && goto done
+            echo Waiting for ecomapp to be ready...
+            timeout /t 5 >nul
+            set /a COUNT+=1
+            if %COUNT% GEQ %RETRIES% goto fail
+            goto loop
+            :done
+            echo ecomapp is up!
+            goto end
+            :fail
+            echo ecomapp did not start in time.
+            exit 1
+            :end
+            '''
         }
+    }
+}
+
     }
     post {
         success {
