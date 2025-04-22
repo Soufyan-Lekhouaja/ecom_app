@@ -9,21 +9,21 @@ pipeline {
         git url: 'https://github.com/Soufyan-Lekhouaja/ecom_app', branch: 'master'
       }
     }
-    stage('Start MySQL Service') {
+    stage('Start PostgreSQL Service') {
       steps {
-        bat "docker-compose -f ${env.DOCKER_COMPOSE_FILE} up -d mysql8"
+        bat "docker-compose -f ${env.DOCKER_COMPOSE_FILE} up -d postgres"
       }
     }
-    stage('Wait for MySQL Healthy') {
+    stage('Wait for PostgreSQL Healthy') {
       steps {
         bat '''
         @echo off
-        echo Waiting for mysql8 to become healthy...
+        echo Waiting for postgres to become healthy...
         :loop
-        for /f "tokens=*" %%i in ('docker inspect --format "{{.State.Health.Status}}" mysql8') do set STATE=%%i
+        for /f "tokens=*" %%i in ('docker inspect --format "{{.State.Health.Status}}" postgres') do set STATE=%%i
         echo Current status is "%STATE%"
         if "%STATE%"=="healthy" (
-          echo mysql8 is healthy!
+          echo postgres is healthy!
           goto done
         )
         timeout /t 5 >nul
@@ -35,7 +35,7 @@ pipeline {
   }
   post {
     failure {
-      echo 'MySQL deployment failed.'
+      echo 'PostgreSQL deployment failed.'
     }
   }
 }
