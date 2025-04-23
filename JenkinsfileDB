@@ -20,7 +20,7 @@ pipeline {
                 @echo off
                 echo Sleeping for 60 seconds to allow postgre-prod to initialize...
                 timeout /t 60 >nul
-                echo Done waiting. Proceeding with pipeline...
+                echo Done waiting.
                 '''
             }
         }
