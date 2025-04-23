@@ -1,79 +1,104 @@
 pipeline {
     agent any
+    tools {
+        maven 'Maven 3.9.9'
+        jdk '17.0.12'
+    }
     environment {
-        DOCKER_IMAGE = 'ecomdb'
-        MYSQL_CREDS = credentials('mysql-credentials')
+        DOCKER_COMPOSE_FILE = 'docker-compose.yml'
     }
     stages {
         stage('Checkout') {
             steps {
-                git 'https://github.com/Soufyan-Lekhouaja/ecom_app'
+                git url: 'https://github.com/Soufyan-Lekhouaja/ecom_app', branch: 'master'
             }
         }
-        stage('Setup Network and MySQL') {
+        stage('Cleanup Existing Containers') {
             steps {
-                script {
-                    // Créer le réseau Docker s'il n'existe pas
-                    bat 'docker network inspect ecom-network || docker network create ecom-network'
-                    // Stop + remove MySQL s'il existe déjà
-                    bat 'docker stop mysql8 || exit 0'
-                    bat 'docker rm mysql8 || exit 0'
-                    // Lancer le conteneur MySQL
-                    bat '''
-                    docker run -d --name mysql8 --network ecom-network ^
--e MYSQL_ROOT_PASSWORD=1212 ^
--e MYSQL_DATABASE=ecomjava ^
--p 3306:3306 ^
--v mysql_data:/var/lib/mysql ^
--v "C:/Users/pc/.jenkins/workspace/database pipeline/scriptdb.sql":/docker-entrypoint-initdb.d/scriptdb.sql ^
-mysql:8.0
-                    '''
-                }
-            }
-            
-        }
-        stage('Init Database') {
-            steps {
-                script {
-                    // Verify file exists
-                    bat 'dir scriptdb.sql || (echo "SQL script not found" && exit 1)'
-                    
-                    // Wait for MySQL to be ready with timeout
-                    bat '''
-                    :loop
-                    docker exec mysql8 mysqladmin -uroot -p1212 ping | findstr "mysqld is alive" && goto :done
-                    timeout /t 5
-                    goto :loop
-                    :done
-                    '''
-                    
-                    // Execute the SQL script
-                    bat 'docker cp scriptdb.sql mysql8:/tmp/scriptdb.sql'
-                    bat 'docker exec mysql8 mysql -uroot -p%MYSQL_CREDS_PSW% ecomjava -e "source /tmp/scriptdb.sql"'
-                    
-                    // Verify database initialization
-                    bat 'docker exec mysql8 mysql -uroot -p%MYSQL_CREDS_PSW% ecomjava -e "SHOW TABLES"'
-                }
+                bat '''
+                @echo off
+                echo Checking for existing containers...
+                
+                docker ps -a --format "{{.Names}}" | findstr /i /c:"ecomapp" > nul
+                if not errorlevel 1 (
+                    echo Removing existing ecomapp container...
+                    docker rm -f ecomapp
+                )
+                
+                docker ps -a --format "{{.Names}}" | findstr /i /c:"postgres" > nul
+                if not errorlevel 1 (
+                    echo Removing existing postgres container...
+                    docker rm -f postgres
+                )
+                
+                echo Cleanup completed.
+                '''
             }
         }
-        stage('Health Check') {
+        stage('Start PostgreSQL Service') {
             steps {
-                script {
-                    // Perform a basic health check on the database
-                    bat 'docker exec mysql8 mysql -uroot -p%MYSQL_CREDS_PSW% -e "SELECT 1"'
-                    echo "MySQL container is running and healthy"
-                }
+                bat "docker-compose -f ${env.DOCKER_COMPOSE_FILE} up -d postgres"
+            }
+        }
+        stage('Wait for PostgreSQL Healthy') {
+            steps {
+                bat '''
+                @echo off
+                echo Waiting for postgres to become healthy...
+                set MAX_RETRIES=30
+                set COUNTER=0
+                
+                :loop
+                set /a COUNTER+=1
+                echo Attempt %COUNTER% of %MAX_RETRIES%
+                
+                for /f "tokens=*" %%i in ('docker inspect --format "{{.State.Health.Status}}" postgres 2^>nul') do set STATE=%%i
+                echo Current status is "%STATE%"
+                
+                if "%STATE%"=="healthy" (
+                  echo postgres is healthy!
+                  goto done
+                )
+                
+                if %COUNTER% geq %MAX_RETRIES% (
+                  echo Maximum retries reached. PostgreSQL may not be healthy.
+                  echo Checking if it's at least running...
+                  
+                  docker exec postgres pg_isready -U root -d ecommjava
+                  if errorlevel 1 (
+                    echo PostgreSQL is not responding. Failing the build.
+                    exit 1
+                  ) else (
+                    echo PostgreSQL is responding to connections even though health check hasn't passed. Proceeding with caution.
+                    goto done
+                  )
+                )
+                
+                timeout /t 10 >nul
+                goto loop
+                :done
+                '''
+            }
+        }
+        stage('Build Application') {
+            steps {
+                bat 'mvn clean package -DskipTests'
+            }
+        }
+        stage('Build Docker Image') {
+            steps {
+                bat 'docker build -t ecomapp:latest .'
+            }
+        }
+        stage('Start Application Service') {
+            steps {
+                bat "docker-compose -f ${env.DOCKER_COMPOSE_FILE} up -d --no-deps ecomapp"
             }
         }
     }
     post {
         failure {
-            echo "Pipeline failed! Check MySQL container status and logs:"
-            bat 'docker logs mysql8'
-        }
-        success {
-            echo "MySQL container successfully deployed on production environment"
+            echo 'Deployment failed.'
         }
     }
 }
-

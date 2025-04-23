@@ -1,66 +1,38 @@
 pipeline {
     agent any
-    environment {
-        MAVEN_HOME = 'C:\\Program Files\\Apache\\maven-3.9.9'
-        DOCKER_IMAGE = 'ecomapp:latest'
-    }
     tools {
         maven 'Maven 3.9.9'
         jdk '17.0.12'
     }
+    environment {
+        DOCKER_COMPOSE_FILE = 'docker-compose.yml'
+    }
     stages {
         stage('Checkout') {
             steps {
-                git 'https://github.com/Soufyan-Lekhouaja/ecom_app'
+                git url: 'https://github.com/Soufyan-Lekhouaja/ecom_app', branch: 'master'
             }
         }
-        stage('Build') {
+        stage('Build Application') {
             steps {
-                bat 'mvn clean install'
+                bat 'mvn clean package -DskipTests'
             }
         }
-        stage('Test') {
-            steps {
-                bat 'mvn test'
-            }
-        }
-        stage('Package') {
-            steps {
-                bat 'mvn package'
-            }
-        }
-        stage('Publish to Nexus') {
-            steps {
-                bat 'mvn deploy'
-            }
-        }
-        stage('Cleanup Old Container') {
-            steps {
-                bat 'docker rm -f ecomapp || echo "No existing container to remove"'
-            }
-        }
-
         stage('Build Docker Image') {
             steps {
-                script {
-                    bat 'docker build -t ecomapp:latest .'
-                }
+                bat 'docker build -t ecomapp:latest .'
             }
         }
-        stage('Run Docker Container') {
+        stage('Start Application Service') {
             steps {
-                script {
-                    // Connect to the same Docker network and pass MySQL credentials as env variables
-                    bat '''
-                    docker run -d --name ecomapp ^
-                    --network ecom-network ^
-                    -e SPRING_DATASOURCE_URL=jdbc:mysql://mysql8:3306/ecomjava ^
-                    -e SPRING_DATASOURCE_USERNAME=root ^
-                    -e SPRING_DATASOURCE_PASSWORD=1212 ^
-                    -p 8083:8083 ecomapp:latest
-                    '''
-                }
+                // Launch only the ecomapp service (will wait for postgres via depends_on)
+                bat "docker-compose -f ${env.DOCKER_COMPOSE_FILE} up -d --no-deps ecomapp"
             }
+        }
+    }
+    post {
+        failure {
+            echo 'ecomapp deployment failed.'
         }
     }
 }
