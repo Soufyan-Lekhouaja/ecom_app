@@ -146,7 +146,44 @@
                 </execution>
             </executions>
         </plugin>
+			<plugin>
+            <groupId>org.apache.maven.plugins</groupId>
+            <artifactId>maven-checkstyle-plugin</artifactId>
+            <version>3.3.1</version> <!-- Use latest -->
+            <configuration>
+                <configLocation>google_checks.xml</configLocation> <!-- Or custom config -->
+                <encoding>UTF-8</encoding>
+                <consoleOutput>true</consoleOutput>
+                <failsOnError>false</failsOnError>
+            </configuration>
+        </plugin>
+
+        <!-- PMD Plugin -->
+        <plugin>
+            <groupId>org.apache.maven.plugins</groupId>
+            <artifactId>maven-pmd-plugin</artifactId>
+            <version>3.21.1</version>
+            <configuration>
+                <failOnViolation>false</failOnViolation>
+            </configuration>
+        </plugin>
+
+        <!-- SpotBugs Plugin (replaces FindBugs) -->
+        <plugin>
+            <groupId>com.github.spotbugs</groupId>
+            <artifactId>spotbugs-maven-plugin</artifactId>
+            <version>4.8.3.0</version> <!-- Latest compatible version -->
+            <executions>
+                <execution>
+                    <phase>verify</phase>
+                    <goals>
+                        <goal>spotbugs</goal>
+                    </goals>
+                </execution>
+            </executions>
+        </plugin>
 		</plugins>
+		
 	</build>
 	<distributionManagement>
 		<repository>
