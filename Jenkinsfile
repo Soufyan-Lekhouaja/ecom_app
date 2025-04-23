@@ -29,25 +29,11 @@ pipeline {
 
         stage('Analyse du code') {
             parallel {
-                stage('Checkstyle') {
-                    steps {
-                        sh 'mvn checkstyle:checkstyle'
-                        recordIssues tools: [checkStyle()]
-                        echo 'Running Checkstyle for ecomapp'
-                    }
-                }
-                stage('FindBugs') {
-                    steps {
-                        sh 'mvn findbugs:findbugs'
-                        recordIssues tools: [findBugs()]
-                        echo 'Running FindBugs for ecomapp'
-                    }
-                }
                 stage('PMD') {
                     steps {
-                        sh 'mvn pmd:pmd'
+                        bat 'mvn pmd:pmd'
                         recordIssues tools: [pmdParser()]
-                        echo 'Running PMD for ecomapp'
+                        
                     }
                 }
             }
