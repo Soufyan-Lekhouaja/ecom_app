@@ -13,9 +13,9 @@ pipeline {
     }
 
     stages {
-        stage('Checkout') {
+        stage('ScrutationSCM') {
             steps {
-                git url: 'https://github.com/Soufyan-Lekhouaja/ecom_app', branch: 'featuresDev'
+                checkout scm
             }
         }
 
