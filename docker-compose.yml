@@ -1,13 +1,12 @@
 version: '2.4'
 services:
-  postgres:
+  postgre-prod:
     image: postgres:14
-    container_name: postgres
+    container_name: postgre-prod
     environment:
       POSTGRES_PASSWORD: 1212
       POSTGRES_USER: root
       POSTGRES_DB: ecommjava
-      # Add this to improve startup time
       POSTGRES_INITDB_ARGS: "--nosync"
     ports:
       - "5432:5432"
@@ -22,23 +21,26 @@ services:
       timeout: 3s
       retries: 10
       start_period: 10s
-  ecomapp:
-    image: ecomapp:latest
-    container_name: ecomapp
+
+  ecomapp-prod:
+    image: ecomapp-prod:latest
+    container_name: ecomapp-prod
     environment:
-      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/ecommjava
+      SPRING_DATASOURCE_URL: jdbc:postgresql://postgre-prod:5432/ecommjava
       SPRING_DATASOURCE_USERNAME: root
       SPRING_DATASOURCE_PASSWORD: 1212
       SPRING_JPA_PROPERTIES_HIBERNATE_DIALECT: org.hibernate.dialect.PostgreSQLDialect
     ports:
       - "8083:8083"
     depends_on:
-      postgres:
+      postgre-prod:
         condition: service_healthy
     networks:
       - ecom-network
+
 networks:
   ecom-network:
     driver: bridge
+
 volumes:
   postgres_data:
