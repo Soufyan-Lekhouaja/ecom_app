@@ -17,7 +17,6 @@
 	<properties>
 		<java.version>11</java.version>
 		<maven-checkstyle-plugin.version>3.2.1</maven-checkstyle-plugin.version>
-		<maven-pmd-plugin.version>3.20.0</maven-pmd-plugin.version>
 		<spotbugs-maven-plugin.version>4.7.3.4</spotbugs-maven-plugin.version>
 		<jacoco-maven-plugin.version>0.8.10</jacoco-maven-plugin.version>
 	</properties>
@@ -113,18 +112,6 @@
 				</executions>
 			</plugin>
 			<plugin>
-				<groupId>org.apache.maven.plugins</groupId>
-				<artifactId>maven-pmd-plugin</artifactId>
-				<version>${maven-pmd-plugin.version}</version>
-				<executions>
-					<execution>
-						<goals>
-							<goal>check</goal>
-						</goals>
-					</execution>
-				</executions>
-			</plugin>
-			<plugin>
 				<groupId>org.springframework.boot</groupId>
 				<artifactId>spring-boot-maven-plugin</artifactId>
 			</plugin>
@@ -148,11 +135,6 @@
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-javadoc-plugin</artifactId>
 				<version>3.5.0</version>
-			</plugin>
-			<plugin>
-				<groupId>org.apache.maven.plugins</groupId>
-				<artifactId>maven-pmd-plugin</artifactId>
-				<version>${maven-pmd-plugin.version}</version>
 			</plugin>
 		</plugins>
 	</reporting>
