@@ -29,21 +29,21 @@ pipeline {
 
         stage('Analyse du code') {
             parallel {
-                Checkstyle: {
+                stage('Checkstyle') {
                     steps {
                         sh 'mvn checkstyle:checkstyle'
                         recordIssues tools: [checkStyle()]
                         echo 'Running Checkstyle for ecomapp'
                     }
                 }
-                FindBugs: {
+                stage('FindBugs') {
                     steps {
                         sh 'mvn findbugs:findbugs'
                         recordIssues tools: [findBugs()]
                         echo 'Running FindBugs for ecomapp'
                     }
                 }
-                PMD: {
+                stage('PMD') {
                     steps {
                         sh 'mvn pmd:pmd'
                         recordIssues tools: [pmdParser()]
@@ -64,7 +64,8 @@ pipeline {
                 bat 'mvn deploy'
             }
         }
-         stage('Start the app') {
+
+        stage('Start the app') {
             steps {
                 bat 'java -jar target/ecomapp.jar'
             }
