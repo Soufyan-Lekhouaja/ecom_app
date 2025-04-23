@@ -20,19 +20,18 @@ pipeline {
         }
         stage('Build Docker Image') {
             steps {
-                bat 'docker build -t ecomapp:latest .'
+                bat 'docker build -t ecomapp-prod:latest .'
             }
         }
-        stage('Start Application Service') {
+        stage('Deploy Application Container') {
             steps {
-                // Launch only the ecomapp service (will wait for postgres via depends_on)
-                bat "docker-compose -f ${env.DOCKER_COMPOSE_FILE} up -d --no-deps ecomapp"
+                bat "docker-compose -f ${env.DOCKER_COMPOSE_FILE} up -d --no-deps ecomapp-prod"
             }
         }
     }
     post {
         failure {
-            echo 'ecomapp deployment failed.'
+            echo 'Production deployment failed.'
         }
     }
 }
