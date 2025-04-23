@@ -58,8 +58,9 @@ pipeline {
                 bat 'mvn deploy'
             }
         }
-
-        stage('Build Docker Image') {
+        stage ('Deployment'){
+            parallel {
+                stage('Build Docker Image') {
             steps {
                 script {
                     bat "docker build -t %DOCKER_IMAGE% ."
@@ -76,5 +77,9 @@ pipeline {
                 }
             }
         }
+            }
+            
+        }
+        
     }
 }
