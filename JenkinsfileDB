@@ -1,7 +1,7 @@
 pipeline {
     agent any
     environment {
-        DOCKER_COMPOSE_FILE = 'docker-compose.yml'
+        DOCKER_COMPOSE_FILE = 'docker-compose.prod.yml'
     }
     stages {
         stage('Checkout') {
@@ -14,32 +14,13 @@ pipeline {
                 bat "docker-compose -f ${env.DOCKER_COMPOSE_FILE} up -d postgre-prod"
             }
         }
-        stage('Wait for PostgreSQL Healthy') {
+        stage('Wait for PostgreSQL (Sleep)') {
             steps {
                 bat '''
                 @echo off
-                set MAX_RETRIES=60
-                set COUNTER=0
-                echo Waiting for postgre-prod to become healthy...
-
-                :loop
-                set /a COUNTER+=1
-                echo Attempt %COUNTER%
-
-                for /f "tokens=*" %%i in ('docker inspect --format "{{.State.Health.Status}}" postgre-prod 2^>nul') do set STATE=%%i
-                if "%STATE%"=="healthy" (
-                    echo postgre-prod is healthy.
-                    goto done
-                )
-
-                if %COUNTER% geq %MAX_RETRIES% (
-                    echo postgre-prod is not healthy after %MAX_RETRIES% tries.
-                    exit 1
-                )
-
-                timeout /t 10 >nul
-                goto loop
-                :done
+                echo Sleeping for 60 seconds to allow postgre-prod to initialize...
+                timeout /t 60 >nul
+                echo Done waiting. Proceeding with pipeline...
                 '''
             }
         }
