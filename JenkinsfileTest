@@ -18,48 +18,10 @@ pipeline {
         stage('Start PostgreSQL Service') {
             steps {
                 bat "docker-compose -f ${env.DOCKER_COMPOSE_FILE} up -d postgres"
+                sleep 40
             }
         }
-        stage('Wait for PostgreSQL Healthy') {
-            steps {
-                bat '''
-                @echo off
-                echo Waiting for postgres to become healthy...
-                set MAX_RETRIES=30
-                set COUNTER=0
-                
-                :loop
-                set /a COUNTER+=1
-                echo Attempt %COUNTER% of %MAX_RETRIES%
-                
-                for /f "tokens=*" %%i in ('docker inspect --format "{{.State.Health.Status}}" postgres 2^>nul') do set STATE=%%i
-                echo Current status is "%STATE%"
-                
-                if "%STATE%"=="healthy" (
-                  echo postgres is healthy!
-                  goto done
-                )
-                
-                if %COUNTER% geq %MAX_RETRIES% (
-                  echo Maximum retries reached. PostgreSQL may not be healthy.
-                  echo Checking if it's at least running...
-                  
-                  docker exec postgres pg_isready -U root -d ecommjava
-                  if errorlevel 1 (
-                    echo PostgreSQL is not responding. Failing the build.
-                    exit 1
-                  ) else (
-                    echo PostgreSQL is responding to connections even though health check hasn't passed. Proceeding with caution.
-                    goto done
-                  )
-                )
-                
-                timeout /t 10 >nul
-                goto loop
-                :done
-                '''
-            }
-        }
+        
 stage('Test'){
             steps {
                 bat 'mvn test'
