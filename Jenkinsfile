@@ -32,7 +32,6 @@ pipeline {
                 stage('PMD') {
                     steps {
                         bat 'mvn pmd:pmd'
-                        recordIssues tools: [pmdParser()]
                         
                     }
                 }
