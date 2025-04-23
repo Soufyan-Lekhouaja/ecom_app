@@ -11,7 +11,7 @@ pipeline {
         }
         stage('Start PostgreSQL (Production)') {
             steps {
-                bat "docker-compose -f ${env.DOCKER_COMPOSE_FILE} up -d postgre"
+                bat "docker-compose -f ${env.DOCKER_COMPOSE_FILE} up -d postgres"
             }
         }
         stage('Wait for PostgreSQL (Sleep)') {
