@@ -71,7 +71,7 @@
 	</dependencies>
 
 	<build>
-		<finalName>ecomapp-prod</finalName>
+		<finalName>ecomapp</finalName>
 		<plugins>
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
