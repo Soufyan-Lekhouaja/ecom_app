@@ -14,34 +14,36 @@ pipeline {
                 git 'https://github.com/Soufyan-Lekhouaja/ecom_app'
             }
         }
-        
+
         stage('Build') {
             steps {
                 bat 'mvn clean install'
             }
         }
+
         stage('Test') {
             steps {
                 bat 'mvn test'
             }
         }
+
         stage('Analyse du code') {
             parallel {
-                stage('Checkstyle') {
+                Checkstyle: {
                     steps {
                         sh 'mvn checkstyle:checkstyle'
                         recordIssues tools: [checkStyle()]
                         echo 'Running Checkstyle for ecomapp'
                     }
                 }
-                stage('FindBugs') {
+                FindBugs: {
                     steps {
                         sh 'mvn findbugs:findbugs'
                         recordIssues tools: [findBugs()]
                         echo 'Running FindBugs for ecomapp'
                     }
                 }
-                stage('PMD') {
+                PMD: {
                     steps {
                         sh 'mvn pmd:pmd'
                         recordIssues tools: [pmdParser()]
@@ -49,16 +51,23 @@ pipeline {
                     }
                 }
             }
+        }
+
         stage('Package') {
             steps {
                 bat 'mvn package'
             }
         }
+
         stage('Publish to Nexus') {
             steps {
                 bat 'mvn deploy'
             }
         }
+         stage('Start the app') {
+            steps {
+                bat 'java -jar target/ecomapp.jar'
+            }
+        }
     }
-}
 }
