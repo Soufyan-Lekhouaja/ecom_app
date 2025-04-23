@@ -1,3 +1,8 @@
+## Setup
+1. Clone the repo
+2. Run `mvn spring-boot:run`
+3. Access at `localhost:8080`
+
 ## Old Version
 - https://github.com/jaygajera17/E-commerce-project-springBoot/tree/main
 - issue: everytime connection open close for access database 
