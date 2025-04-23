@@ -1,38 +1,63 @@
 pipeline {
     agent any
+    environment {
+        MAVEN_HOME = 'C:\\Program Files\\Apache\\maven-3.9.9'
+        DOCKER_IMAGE = 'ecomapp:latest'
+    }
     tools {
         maven 'Maven 3.9.9'
         jdk '17.0.12'
     }
-    environment {
-        DOCKER_COMPOSE_FILE = 'docker-compose.yml'
-    }
     stages {
         stage('Checkout') {
             steps {
-                git url: 'https://github.com/Soufyan-Lekhouaja/ecom_app', branch: 'featuresDev'
+                git 'https://github.com/Soufyan-Lekhouaja/ecom_app'
             }
         }
-        stage('Build Application') {
+        
+        stage('Build') {
             steps {
-                bat 'mvn clean package -DskipTests'
+                bat 'mvn clean install'
             }
         }
-        stage('Build Docker Image') {
+        stage('Test') {
             steps {
-                bat 'docker build -t ecomapp:latest .'
+                bat 'mvn test'
             }
         }
-        stage('Start Application Service') {
+        stage('Analyse du code') {
+            parallel {
+                stage('Checkstyle') {
+                    steps {
+                        sh 'mvn checkstyle:checkstyle'
+                        recordIssues tools: [checkStyle()]
+                        echo 'Running Checkstyle for ecomapp'
+                    }
+                }
+                stage('FindBugs') {
+                    steps {
+                        sh 'mvn findbugs:findbugs'
+                        recordIssues tools: [findBugs()]
+                        echo 'Running FindBugs for ecomapp'
+                    }
+                }
+                stage('PMD') {
+                    steps {
+                        sh 'mvn pmd:pmd'
+                        recordIssues tools: [pmdParser()]
+                        echo 'Running PMD for ecomapp'
+                    }
+                }
+            }
+        stage('Package') {
             steps {
-                // Launch only the ecomapp service (will wait for postgres via depends_on)
-                bat "docker-compose -f ${env.DOCKER_COMPOSE_FILE} up -d --no-deps ecomapp"
+                bat 'mvn package'
             }
         }
-    }
-    post {
-        failure {
-            echo 'ecomapp deployment failed.'
+        stage('Publish to Nexus') {
+            steps {
+                bat 'mvn deploy'
+            }
         }
     }
 }
