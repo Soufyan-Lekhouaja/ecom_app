@@ -25,9 +25,18 @@ pipeline {
             }
         }
 
-        stage('Test') {
-            steps {
-                bat 'mvn test'
+        stage('Tests') {
+            parallel {
+                stage('Tests Unitaires') {
+                    steps {
+                        bat 'mvn test'
+                    }
+                }
+                stage('Tests de Performance') {
+                    steps {
+                        bat 'mvn gatling:test'
+                    }
+                }
             }
         }
 
@@ -58,28 +67,26 @@ pipeline {
                 bat 'mvn deploy'
             }
         }
-        stage ('Deployment'){
+
+        stage('Deployment') {
             parallel {
                 stage('Build Docker Image') {
-            steps {
-                script {
-                    bat "docker build -t %DOCKER_IMAGE% ."
+                    steps {
+                        script {
+                            bat "docker build -t %DOCKER_IMAGE% ."
+                        }
+                    }
                 }
-            }
-        }
 
-        stage('Run Docker Container') {
-            steps {
-                script {
-                    // Optional: Stop and remove old container if exists
-                    bat "docker rm -f %CONTAINER_NAME% || exit 0"
-                    bat "docker run -d --name %CONTAINER_NAME% -p 8083:8083 %DOCKER_IMAGE%"
+                stage('Run Docker Container') {
+                    steps {
+                        script {
+                            bat "docker rm -f %CONTAINER_NAME% || exit 0"
+                            bat "docker run -d --name %CONTAINER_NAME% -p 8083:8083 %DOCKER_IMAGE%"
+                        }
+                    }
                 }
             }
         }
-            }
-            
-        }
-        
     }
 }
