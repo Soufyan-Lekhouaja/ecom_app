@@ -16,7 +16,7 @@ pipeline {
         }
         stage('Wait for PostgreSQL (Sleep)') {
             steps {
-                sleep 60
+                sleep 20
             }
         }
     }
