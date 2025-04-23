@@ -68,6 +68,27 @@
 				<version>2.22.0</version>
 			</plugin>
 			<plugin>
+      <groupId>org.apache.maven.plugins</groupId>
+      <artifactId>maven-pmd-plugin</artifactId>
+      <version>3.21.2</version> <!-- Use latest version -->
+      <configuration>
+        <failOnViolation>false</failOnViolation> <!-- Avoid build failure -->
+        <rulesets>
+          <ruleset>category/java/bestpractices.xml</ruleset>
+          <ruleset>category/java/codestyle.xml</ruleset>
+          <!-- Add more rulesets as needed -->
+        </rulesets>
+      </configuration>
+      <executions>
+        <execution>
+          <phase>verify</phase>
+          <goals>
+            <goal>check</goal>
+          </goals>
+        </execution>
+      </executions>
+    </plugin>
+			<plugin>
 				<groupId>org.jacoco</groupId>
 				<artifactId>jacoco-maven-plugin</artifactId>
 				<version>${jacoco-maven-plugin.version}</version>
