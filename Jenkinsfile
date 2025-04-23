@@ -47,6 +47,7 @@ pipeline {
                     }
                 }
             }
+        }
         stage('Build Docker Image') {
             steps {
                 bat 'docker build -t ecomapp:latest .'
