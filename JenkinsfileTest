@@ -14,27 +14,28 @@ pipeline {
             }
         }
         stage('Cleanup Existing Containers') {
-            steps {
-                bat '''
-                @echo off
-                echo Checking for existing containers...
-                
-                docker ps -a --format "{{.Names}}" | findstr /i /c:"ecomapp" > nul
-                if not errorlevel 1 (
-                    echo Removing existing ecomapp container...
-                    docker rm -f ecomapp
-                )
-                
-                docker ps -a --format "{{.Names}}" | findstr /i /c:"postgres" > nul
-                if not errorlevel 1 (
-                    echo Removing existing postgres container...
-                    docker rm -f postgres
-                )
-                
-                echo Cleanup completed.
-                '''
-            }
-        }
+    steps {
+        bat '''
+        @echo off
+        echo Checking for existing containers...
+
+        docker ps -a --format "{{.Names}}" | findstr /i /c:"ecomapp" > nul
+        if not errorlevel 1 (
+            echo Removing existing ecomapp container...
+            docker rm -f ecomapp
+        )
+
+        docker ps -a --format "{{.Names}}" | findstr /i /c:"postgres" > nul
+        if not errorlevel 1 (
+            echo Removing existing postgres container...
+            docker rm -f postgres
+        )
+
+        echo Cleanup completed.
+        '''
+    }
+}
+
         stage('Start PostgreSQL Service') {
             steps {
                 bat "docker-compose -f ${env.DOCKER_COMPOSE_FILE} up -d postgres"
