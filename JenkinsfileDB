@@ -18,7 +18,7 @@ pipeline {
             steps {
                 bat '''
                 @echo off
-                set MAX_RETRIES=30
+                set MAX_RETRIES=60
                 set COUNTER=0
                 echo Waiting for postgre-prod to become healthy...
 
