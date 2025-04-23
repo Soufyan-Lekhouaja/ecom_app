@@ -72,6 +72,7 @@
 	</dependencies>
 
 	<build>
+		<finalName>ecomapp</finalName>
 		<plugins>
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
@@ -128,4 +129,9 @@
 		</plugins>
 
 	</reporting>
+<<<<<<< HEAD
 </project>
+=======
+
+</project>
+>>>>>>> bcb3891f615db35c1c3ec0e544596dde5855b352
