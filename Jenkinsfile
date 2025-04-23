@@ -11,7 +11,7 @@ pipeline {
     stages {
         stage('Checkout') {
             steps {
-                git 'https://github.com/Soufyan-Lekhouaja/ecom_app' , branch:'featuresDev'
+                git url: 'https://github.com/Soufyan-Lekhouaja/ecom_app' , branch:'featuresDev'
             }
         }
 
