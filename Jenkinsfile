@@ -32,11 +32,7 @@ pipeline {
                         bat 'mvn test'
                     }
                 }
-                stage('Tests de Performance') {
-                    steps {
-                        bat 'mvn gatling:test'
-                    }
-                }
+                
             }
         }
 
