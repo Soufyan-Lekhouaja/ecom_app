@@ -13,4 +13,4 @@ COPY . .
 EXPOSE 8083
 
 # Démarrer l'application
-CMD ["java", "-jar", "target/ecomapp-prod.jar", "--server.port=8083"]
+CMD ["java", "-jar", "target/ecomapp.jar", "--server.port=8083"]
