@@ -20,12 +20,12 @@ pipeline {
         }
         stage('Build Docker Image') {
             steps {
-                bat 'docker build -t ecomapp-prod:latest .'
+                bat 'docker build -t ecomapp:latest .'
             }
         }
         stage('Deploy Application Container') {
             steps {
-                bat "docker-compose -f ${env.DOCKER_COMPOSE_FILE} up -d --no-deps ecomapp-prod"
+                bat "docker-compose -f ${env.DOCKER_COMPOSE_FILE} up -d --no-deps ecomapp"
             }
         }
     }
