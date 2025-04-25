@@ -1,0 +1,44 @@
+version: '2.4'
+services:
+  postgres:
+    image: postgres:14
+    container_name: postgres
+    environment:
+      POSTGRES_PASSWORD: 1212
+      POSTGRES_USER: root
+      POSTGRES_DB: ecommjava
+      # Add this to improve startup time
+      POSTGRES_INITDB_ARGS: "--nosync"
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./scriptdb.sql:/docker-entrypoint-initdb.d/scriptdb.sql
+    networks:
+      - ecom-network
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U root -d ecommjava || exit 1"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+      start_period: 10s
+  ecomapp:
+    image: ecomapp:latest
+    container_name: ecomapp
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/ecommjava
+      SPRING_DATASOURCE_USERNAME: root
+      SPRING_DATASOURCE_PASSWORD: 1212
+      SPRING_JPA_PROPERTIES_HIBERNATE_DIALECT: org.hibernate.dialect.PostgreSQLDialect
+    ports:
+      - "8083:8083"
+    depends_on:
+      postgres:
+        condition: service_healthy
+    networks:
+      - ecom-network
+networks:
+  ecom-network:
+    driver: bridge
+volumes:
+  postgres_data:

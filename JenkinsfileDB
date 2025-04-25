@@ -1,0 +1,28 @@
+pipeline {
+    agent any
+    environment {
+        DOCKER_COMPOSE_FILE = 'docker-compose.yml'
+    }
+    stages {
+        stage('Checkout') {
+            steps {
+                git url: 'https://github.com/Soufyan-Lekhouaja/ecom_app', branch: 'master'
+            }
+        }
+        stage('Start PostgreSQL (Production)') {
+            steps {
+                bat "docker-compose -f ${env.DOCKER_COMPOSE_FILE} up -d postgres"
+            }
+        }
+        stage('Wait for PostgreSQL (Sleep)') {
+            steps {
+                sleep 20
+            }
+        }
+    }
+    post {
+        failure {
+            echo 'Production PostgreSQL provisioning failed.'
+        }
+    }
+}
