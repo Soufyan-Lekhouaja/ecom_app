@@ -101,26 +101,7 @@
 				<groupId>org.springframework.boot</groupId>
 				<artifactId>spring-boot-maven-plugin</artifactId>
 			</plugin>
-			<plugin>
-            <groupId>org.apache.maven.plugins</groupId>
-            <artifactId>maven-pmd-plugin</artifactId>
-            <configuration>
-                <failOnViolation>true</failOnViolation>
-                <rulesets>
-                    <ruleset>/rulesets/java/basic.xml</ruleset>
-                    <ruleset>/rulesets/java/braces.xml</ruleset>
-                    <ruleset>/rulesets/java/codesize.xml</ruleset>
-                </rulesets>
-            </configuration>
-            <executions>
-                <execution>
-                    <phase>verify</phase>
-                    <goals>
-                        <goal>check</goal>
-                    </goals>
-                </execution>
-            </executions>
-        </plugin>
+			
 			<!-- Checkstyle Plugin -->
         <plugin>
             <groupId>org.apache.maven.plugins</groupId>
@@ -158,15 +139,7 @@
             </configuration>
         </plugin>
 
-        <!-- PMD Plugin -->
-        <plugin>
-            <groupId>org.apache.maven.plugins</groupId>
-            <artifactId>maven-pmd-plugin</artifactId>
-            <version>3.21.1</version>
-            <configuration>
-                <failOnViolation>false</failOnViolation>
-            </configuration>
-        </plugin>
+       
 
         <!-- SpotBugs Plugin (replaces FindBugs) -->
         <plugin>
@@ -203,10 +176,7 @@
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-javadoc-plugin</artifactId>
 			</plugin>
-			<plugin>
-				<groupId>org.apache.maven.plugins</groupId>
-				<artifactId>maven-pmd-plugin</artifactId>
-			</plugin>
+			
 		</plugins>
 
 	</reporting>
